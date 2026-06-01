@@ -1,0 +1,40 @@
+// Order of work
+1. Database Schema     → Foundation, everything stores here
+2. FastAPI + Models    → Connect Python to Database
+3. AWS Connection      → STS verify, store credentials
+4. EC2 Scanner         → First scanner, learn the pattern
+5. Normalization       → Clean the data
+6. Snapshot Engine     → Save Version 1
+7. Diff Engine         → Compare versions
+8. More Scanners       → VPC, S3, RDS, Lambda
+9. Replay Engine       → Timeline data
+10. Frontend           → Show everything
+
+// Database Schema
+1. users           → Foundation, everything belongs to a user
+2. aws_accounts    → Belongs to user
+3. scan_jobs       → Belongs to aws_account
+4. service_scans   → Belongs to scan_job
+5. snapshots       → Belongs to aws_account
+6. resources       → Belongs to snapshot
+7. relationships   → Belongs to snapshot
+8. snapshot_diffs  → Belongs to two snapshots
+
+// Folder Structure
+gravitylens/
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── database.py
+│   │   ├── models/
+│   │   ├── routers/
+│   │   ├── scanners/
+│   │   ├── engines/
+│   │   └── schemas/
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   └── (Next.js project here later)
+├── docker-compose.yml
+└── README.md
+
