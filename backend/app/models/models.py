@@ -145,7 +145,7 @@ class Resource(Base):
     fingerprint     = Column(String(64), nullable=False)  # SHA256 hash
 
     # All service specific data
-    metadata        = Column(JSONB, nullable=False)       # full metrics object
+    meta_data       = Column("metadata", JSONB, nullable=False)       # full metrics object
 
     created_at      = Column(DateTime(timezone=True), server_default=func.now())
 

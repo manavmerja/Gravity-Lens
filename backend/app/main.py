@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
+from app.routers.aws_accounts import router as aws_router
 
 # This creates all tables automatically when app starts
 Base.metadata.create_all(bind=engine)
@@ -18,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(aws_router)
 
 @app.get("/")
 def health_check():
