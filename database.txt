@@ -38,3 +38,37 @@ gravitylens/
 ├── docker-compose.yml
 └── README.md
 
+
+
+// Why we use the __init__.py file every Folder ? 
+
+The __init__.py file plays a very important role in Python. It does two main things:
+
+1. It turns a folder into an importable Python Package
+In Python, a standard folder is just a folder. But if you add a file named __init__.py inside it, Python recognizes that directory as a package (or module).
+
+This allows you to write import statements pointing to that folder:
+
+Without __init__.py: You cannot do import app.schemas.
+With __init__.py: You can safely import files or variables inside it from anywhere in your project.
+2. It controls "Public Exports" (Simplifies imports)
+This is where __init__.py makes your code much cleaner.
+
+Without your app/schemas/__init__.py file, if someone wanted to use ConnectAwsRequest in main.py, they would have to write the exact, long file path:
+
+python
+from app.schemas.aws_account import ConnectAwsRequest
+But inside 
+
+app/schemas/__init__.py
+, you imported ConnectAwsRequest directly:
+
+python
+from app.schemas.aws_account import ConnectAwsRequest
+Because of this, you can import it in main.py using a much shorter and cleaner path:
+
+python
+from app.schemas import ConnectAwsRequest
+It hides the internal files and exposes a clean, unified interface to the rest of the application.
+
+(This is why we also have it in models/__init__.py and services/__init__.py—so we can import everything directly from the parent folder).
