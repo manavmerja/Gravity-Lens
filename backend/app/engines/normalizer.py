@@ -198,6 +198,80 @@ class NormalizationEngine:
         }
 
     # ─────────────────────────────────────────
+    # EC2 NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_ec2(
+        self,
+        instance: dict,
+        region: str,
+        account_id: str,
+        subnet_map: dict = {}
+    ) -> dict:
+        """
+        Convert raw AWS EC2 instance into standard node format.
+        Parent is Subnet if instance is inside a VPC.
+        """
+        instance_id = instance['InstanceId']
+        resource_arn = f"arn:aws:ec2:{region}:{account_id}:instance/{instance_id}"
+
+        # Get name from tags
+        name = self._get_tag(instance, 'Name') or instance_id
+
+        # Get subnet parent
+        subnet_id = instance.get('SubnetId')
+        subnet_arn = subnet_map.get(subnet_id) if subnet_id else None
+
+        # Get public IP if exists
+        public_ip = instance.get('PublicIpAddress', 'None')
+        private_ip = instance.get('PrivateIpAddress', 'None')
+
+        # Get state
+        state = instance.get('State', {}).get('Name', 'unknown')
+
+        # Get security groups
+        security_groups = [
+            sg.get('GroupName', '') 
+            for sg in instance.get('SecurityGroups', [])
+        ]
+
+        metrics = {
+            "instanceType": instance.get('InstanceType', 'N/A'),
+            "state": state,
+            "privateIp": private_ip,
+            "publicIp": public_ip,
+            "securityGroups": security_groups,
+            "availabilityZone": instance.get('Placement', {}).get('AvailabilityZone', 'N/A'),
+            "region": region,
+            "securityScan": self._scan_ec2(instance)
+        }
+
+        insights = f"{state.capitalize()} - {instance.get('InstanceType', 'N/A')}"
+
+        node = self.build_node(
+            resource_arn=resource_arn,
+            node_type="ec2Node",
+            name=name,
+            service="ec2",
+            region=region,
+            account_id=account_id,
+            metrics=metrics,
+            insights=insights,
+            parent_arn=subnet_arn
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+
+        return {
+            "node": node,
+            "fingerprint": fingerprint,
+            "resource_arn": resource_arn,
+            "resource_name": name,
+            "raw_id": instance_id,
+            "parent_arn": subnet_arn
+        }
+
+    # ─────────────────────────────────────────
     # S3 NORMALIZER
     # ─────────────────────────────────────────
 
@@ -499,6 +573,17 @@ class NormalizationEngine:
             return "Warning: Database is publicly accessible"
         if not db.get('MultiAZ'):
             return "Warning: Multi-AZ not enabled"
+        return "Pass"
+
+    def _scan_ec2(self, instance: dict) -> str:
+        """Basic security checks for EC2 instance."""
+        public_ip = instance.get('PublicIpAddress')
+        state = instance.get('State', {}).get('Name', '')
+
+        if public_ip and state == 'running':
+            return "Warning: Instance has public IP"
+        if state == 'stopped':
+            return "Info: Instance is stopped"
         return "Pass"
 
     # ─────────────────────────────────────────

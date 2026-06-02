@@ -1,3 +1,4 @@
+from app.scanners.ec2_scanner import ec2_scanner
 import logging
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -96,7 +97,25 @@ class ScanOrchestrator:
                         ScanStatus.failed, 0, str(e)
                     )
 
-                # 2. Lambda
+                # 2. EC2
+                try:
+                    ec2_result = ec2_scanner.scan(
+                        credentials, region, aws_account_id, subnet_map
+                    )
+                    all_nodes.extend(ec2_result['nodes'])
+                    all_edges.extend(ec2_result['edges'])
+                    self._save_service_scan(
+                        db, scan_job.id, 'ec2', region,
+                        ScanStatus.success, len(ec2_result['nodes'])
+                    )
+                except Exception as e:
+                    any_failure = True
+                    self._save_service_scan(
+                        db, scan_job.id, 'ec2', region,
+                        ScanStatus.failed, 0, str(e)
+                    )
+                
+                # 3. Lambda
                 try:
                     lambda_result = lambda_scanner.scan(
                         credentials, region, aws_account_id, subnet_map
@@ -114,7 +133,7 @@ class ScanOrchestrator:
                         ScanStatus.failed, 0, str(e)
                     )
 
-                # 3. RDS
+                # 4. RDS
                 try:
                     rds_result = rds_scanner.scan(
                         credentials, region, aws_account_id, subnet_map
@@ -132,7 +151,7 @@ class ScanOrchestrator:
                         ScanStatus.failed, 0, str(e)
                     )
 
-                # 4. SQS
+                # 5. SQS
                 try:
                     sqs_result = sqs_scanner.scan(
                         credentials, region, aws_account_id
@@ -149,7 +168,7 @@ class ScanOrchestrator:
                         ScanStatus.failed, 0, str(e)
                     )
 
-                # 5. API Gateway
+                # 6. API Gateway
                 try:
                     apigw_result = apigateway_scanner.scan(
                         credentials, region, aws_account_id
@@ -167,7 +186,7 @@ class ScanOrchestrator:
                         ScanStatus.failed, 0, str(e)
                     )
 
-            # ── S3 (Global) ───────────────────────
+            # 7. ── S3 (Global) ───────────────────────
             # S3 is global and not bound to a region. It is scanned once outside the region loop.
             try:
                 s3_result = s3_scanner.scan(credentials, aws_account_id)
