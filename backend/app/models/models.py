@@ -1,3 +1,6 @@
+# It contains the schemas for the database.
+# Each schema is a class that inherits from Base.
+
 from sqlalchemy import (
     Column, String, Integer, Boolean, 
     DateTime, Text, ForeignKey, Enum
@@ -35,12 +38,12 @@ class User(Base):
     id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email      = Column(String(255), unique=True, nullable=False)
     name       = Column(String(255))
-    auth0_id   = Column(String(255), unique=True)  # Auth0 user ID
+    auth0_id   = Column(String(255), unique=True)  # Auth0 user ID this Auth0 later we use them 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    aws_accounts = relationship("AwsAccount", back_populates="user")
+    aws_accounts = relationship("AwsAccount", back_populates="user") # this python allowing you to access a user's aws accounts like user.aws_accounts and aws_account.user this twoway mapping 
 
 # ─────────────────────────────────────────
 # TABLE 2 — AWS ACCOUNTS
@@ -67,7 +70,7 @@ class AwsAccount(Base):
 # ─────────────────────────────────────────
 
 class ScanJob(Base):
-    __tablename__ = "scan_jobs"
+    __tablename__ = "scan_jobs" # Represents one execution of a full scan.
 
     id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     account_id     = Column(UUID(as_uuid=True), ForeignKey("aws_accounts.id"), nullable=False)
@@ -80,14 +83,14 @@ class ScanJob(Base):
 
     # Relationships
     aws_account    = relationship("AwsAccount", back_populates="scan_jobs")
-    service_scans  = relationship("ServiceScan", back_populates="scan_job")
+    service_scans  = relationship("ServiceScan", back_populates="scan_job") 
 
 # ─────────────────────────────────────────
 # TABLE 4 — SERVICE SCANS
 # ─────────────────────────────────────────
 
 class ServiceScan(Base):
-    __tablename__ = "service_scans"
+    __tablename__ = "service_scans" # Tracks each separate region/service task (e.g., EC2 in us-east-1, S3 in eu-west-1)
 
     id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     scan_job_id    = Column(UUID(as_uuid=True), ForeignKey("scan_jobs.id"), nullable=False)
@@ -111,9 +114,9 @@ class Snapshot(Base):
 
     id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     account_id     = Column(UUID(as_uuid=True), ForeignKey("aws_accounts.id"), nullable=False)
-    version_number = Column(Integer, nullable=False)
+    version_number = Column(Integer, nullable=False)  # Incremented each time a scan is run
     label          = Column(String(255))                  # e.g. "Version 1"
-    is_latest      = Column(Boolean, default=False)
+    is_latest      = Column(Boolean, default=False)  # Set to True for the newest version, False for historical versions.
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
@@ -145,7 +148,7 @@ class Resource(Base):
     fingerprint     = Column(String(64), nullable=False)  # SHA256 hash
 
     # All service specific data
-    meta_data       = Column("metadata", JSONB, nullable=False)       # full metrics object
+    meta_data       = Column("metadata", JSONB, nullable=False)       # save custom AWS metrics profiles (like memory sizes, storage limits, etc.)
 
     created_at      = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -157,7 +160,7 @@ class Resource(Base):
 # ─────────────────────────────────────────
 
 class Relationship(Base):
-    __tablename__ = "relationships"
+    __tablename__ = "relationships"  # Maps standard React Flow edges showing how nodes link together (e.g. VPC hosts Subnet).
 
     id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     snapshot_id    = Column(UUID(as_uuid=True), ForeignKey("snapshots.id"), nullable=False)
@@ -179,7 +182,7 @@ class Relationship(Base):
 # ─────────────────────────────────────────
 
 class SnapshotDiff(Base):
-    __tablename__ = "snapshot_diffs"
+    __tablename__ = "snapshot_diffs"  # Stores the exact differences between snapshots
 
     id              = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     from_snapshot   = Column(UUID(as_uuid=True), ForeignKey("snapshots.id"), nullable=False)
