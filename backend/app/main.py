@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(aws_accounts.router)
+app.include_router(aws_accounts.router) #  Imports and mounts all endpoints defined inside your aws_accounts router. means All API Endpoints will be under '/api/aws' url.
 
 
 def process_pending_scans():

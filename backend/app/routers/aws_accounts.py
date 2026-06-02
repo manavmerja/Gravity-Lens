@@ -1,3 +1,5 @@
+# This file is REST Api endpoints
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -12,7 +14,7 @@ import logging
 from uuid import UUID
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/aws", tags=["AWS Accounts"])
+router = APIRouter(prefix="/api/aws", tags=["AWS Accounts"]) # Here tags means all the api endpoints in this file should be displayed under the tag name AWS Accounts in swagger ui
 
 
 @router.post("/connect", response_model=ConnectAwsResponse)

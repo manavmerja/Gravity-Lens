@@ -29,7 +29,7 @@ class AWSService:
 
         try:
             # Step 1: Create STS client
-            sts_client = boto3.client('sts')
+            sts_client = boto3.client('sts')  # Security Token Service
 
             # Step 2: Assume the role the user provided
             assumed_role = sts_client.assume_role(
