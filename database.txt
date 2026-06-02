@@ -72,3 +72,58 @@ from app.schemas import ConnectAwsRequest
 It hides the internal files and exposes a clean, unified interface to the rest of the application.
 
 (This is why we also have it in models/__init__.py and services/__init__.py—so we can import everything directly from the parent folder).
+
+
+
+
+
+Question:
+
+If user use the 7 services after that we use the snapshot engine ?  
+like if user use 2 to 3 services so we use the snapshot engine ? 
+
+Answer: 
+Yes, exactly! You can design the system to:
+✅ Save a snapshot after ANY scan completes
+✅ Use snapshot diffs for any comparison
+
+Whether the user scans 2 services or 7 services, the logic stays the same.
+
+Here is the correct flow:
+
+─────────────────────
+User initiates scan →
+─────────────────────
+
+1. Scan 1 (e.g., VPC)
+   → Normalizer cleans data
+   → Snapshot Engine saves Snapshot #1
+   → Diff Engine calculates nothing (no previous snapshot)
+
+─────────────────────
+User scans more (e.g., S3)
+─────────────────────
+
+2. Scan 2 (e.g., S3)
+   → Normalizer cleans data
+   → Snapshot Engine saves Snapshot #2
+   → Diff Engine compares:
+        Snapshot #2 vs Snapshot #1
+        Shows new resources, changes, deletions
+
+─────────────────────
+User scans more (e.g., RDS)
+─────────────────────
+
+3. Scan 3 (e.g., RDS)
+   → Normalizer cleans data
+   → Snapshot Engine saves Snapshot #3
+   → Diff Engine compares:
+        Snapshot #3 vs Snapshot #2
+
+You can even design a "diff between any two snapshots" feature.
+
+So the answer is YES:
+
+Snapshot Engine should run after EVERY scan, regardless of how many services.
+Diff Engine compares the latest snapshot with the previous one.
