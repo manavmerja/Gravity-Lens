@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import AppNavbar from "@/components/shared/AppNavbar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -8,8 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "GravityLens — Cloud Infrastructure Intelligence",
-  description: "Visualize, track and replay your AWS infrastructure evolution",
+  title: "GravityLens",
 };
 
 export default function RootLayout({
@@ -19,7 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased bg-[#0A0A0F] text-white`}>
+        <AppNavbar />
         {children}
       </body>
     </html>
