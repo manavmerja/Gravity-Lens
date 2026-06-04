@@ -61,8 +61,8 @@ class SnapshotEngine:
                 region=node['data']['region'],
                 account_id=aws_account_id,
                 fingerprint=node_result['fingerprint'],
-                metadata=node['data']
-            )
+                meta_data=node['data']
+)
             db.add(resource)
 
         # Save all edges as relationships

@@ -1,0 +1,553 @@
+{
+  "nodes": [
+    {
+      "id": "vpc-demo",
+      "type": "vpc",
+      "parentId": null,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "vpc-demo",
+        "insights": "Flow logs enabled.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.0.0/16"
+        }
+      },
+      "style": {
+        "width": 900,
+        "height": 550
+      }
+    },
+    {
+      "id": "vpc-123",
+      "type": "vpc",
+      "parentId": null,
+      "position": {
+        "x": 950,
+        "y": 0
+      },
+      "data": {
+        "name": "vpc-123",
+        "insights": "Flow logs enabled.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.0.0/16"
+        }
+      },
+      "style": {
+        "width": 900,
+        "height": 550
+      }
+    },
+    {
+      "id": "subnet-def",
+      "type": "subnet",
+      "parentId": "vpc-04eaf511ea33d8876",
+      "position": {
+        "x": 50,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-def",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "ap-south-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-abc",
+      "type": "subnet",
+      "parentId": "vpc-04eaf511ea33d8876",
+      "position": {
+        "x": 310,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-abc",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "ap-south-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet1",
+      "type": "subnet",
+      "parentId": "vpc-0d96c4c85f792aece",
+      "position": {
+        "x": 50,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet1",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "ap-south-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-2",
+      "type": "subnet",
+      "parentId": "vpc-0d96c4c85f792aece",
+      "position": {
+        "x": 310,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-2",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "ap-south-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "ec2-abc",
+      "type": "ec2",
+      "parentId": "subnet-0f162aeffdc1172ae",
+      "position": {
+        "x": 50,
+        "y": 250
+      },
+      "data": {
+        "name": "ec2-abc",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905"
+        }
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "auth-service",
+      "type": "lambda",
+      "parentId": null,
+      "position": {
+        "x": 1900,
+        "y": 0
+      },
+      "data": {
+        "name": "auth-service",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "runtime": "nodejs20.x",
+          "memory": "1024 MB"
+        }
+      }
+    },
+    {
+      "id": "notification-service",
+      "type": "lambda",
+      "parentId": null,
+      "position": {
+        "x": 2850,
+        "y": 0
+      },
+      "data": {
+        "name": "notification-service",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "runtime": "nodejs20.x",
+          "memory": "1024 MB"
+        }
+      }
+    },
+    {
+      "id": "demofunction",
+      "type": "lambda",
+      "parentId": null,
+      "position": {
+        "x": 3800,
+        "y": 0
+      },
+      "data": {
+        "name": "demofunction",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "runtime": "nodejs20.x",
+          "memory": "1024 MB"
+        }
+      }
+    },
+    {
+      "id": "user-service",
+      "type": "lambda",
+      "parentId": null,
+      "position": {
+        "x": 4750,
+        "y": 0
+      },
+      "data": {
+        "name": "user-service",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "runtime": "nodejs20.x",
+          "memory": "1024 MB"
+        }
+      }
+    },
+    {
+      "id": "database-1-instance-1",
+      "type": "rds",
+      "parentId": null,
+      "position": {
+        "x": 5700,
+        "y": 0
+      },
+      "data": {
+        "name": "database-1-instance-1",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "engine": "PostgreSQL 16"
+        }
+      }
+    },
+    {
+      "id": "database-2-instance-1",
+      "type": "rds",
+      "parentId": null,
+      "position": {
+        "x": 6650,
+        "y": 0
+      },
+      "data": {
+        "name": "database-2-instance-1",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905",
+          "engine": "PostgreSQL 16"
+        }
+      }
+    },
+    {
+      "id": "vpc-0c0683d3f1b3ef13b",
+      "type": "vpc",
+      "parentId": null,
+      "position": {
+        "x": 7600,
+        "y": 0
+      },
+      "data": {
+        "name": "vpc-0c0683d3f1b3ef13b",
+        "insights": "Flow logs enabled.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.0.0/16"
+        }
+      },
+      "style": {
+        "width": 900,
+        "height": 550
+      }
+    },
+    {
+      "id": "subnet-0e43806606a0bdbe8",
+      "type": "subnet",
+      "parentId": "vpc-0c0683d3f1b3ef13b",
+      "position": {
+        "x": 50,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-0e43806606a0bdbe8",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "us-east-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-0329ab3ddf808cc3c",
+      "type": "subnet",
+      "parentId": "vpc-0c0683d3f1b3ef13b",
+      "position": {
+        "x": 310,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-0329ab3ddf808cc3c",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "us-east-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-0d2e36bb9842b75cf",
+      "type": "subnet",
+      "parentId": "vpc-0c0683d3f1b3ef13b",
+      "position": {
+        "x": 570,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-0d2e36bb9842b75cf",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "us-east-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-010032697b6a8eef0",
+      "type": "subnet",
+      "parentId": "vpc-0c0683d3f1b3ef13b",
+      "position": {
+        "x": 830,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-010032697b6a8eef0",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "us-east-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-012c2e64384bc6c99",
+      "type": "subnet",
+      "parentId": "vpc-0c0683d3f1b3ef13b",
+      "position": {
+        "x": 1090,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-012c2e64384bc6c99",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "us-east-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "subnet-0641f7bc19f0b54bd",
+      "type": "subnet",
+      "parentId": "vpc-0c0683d3f1b3ef13b",
+      "position": {
+        "x": 1350,
+        "y": 80
+      },
+      "data": {
+        "name": "subnet-0641f7bc19f0b54bd",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "us-east-1",
+          "account_id": "618642320905",
+          "cidrBlock": "172.31.16.0/20",
+          "availabilityZone": "us-east-1a"
+        }
+      },
+      "style": {
+        "width": 240,
+        "height": 150
+      },
+      "extent": "parent"
+    },
+    {
+      "id": "my-demo-bucket16",
+      "type": "s3",
+      "parentId": null,
+      "position": {
+        "x": 8550,
+        "y": 0
+      },
+      "data": {
+        "name": "my-demo-bucket16",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905"
+        }
+      }
+    },
+    {
+      "id": "my-demo-bucket44",
+      "type": "s3",
+      "parentId": null,
+      "position": {
+        "x": 9500,
+        "y": 0
+      },
+      "data": {
+        "name": "my-demo-bucket44",
+        "insights": "Active state.",
+        "metrics": {
+          "region": "ap-south-1",
+          "account_id": "618642320905"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-3d8876-to-et-def",
+      "source": "vpc-04eaf511ea33d8876",
+      "target": "subnet-def",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-3d8876-to-et-abc",
+      "source": "vpc-04eaf511ea33d8876",
+      "target": "subnet-abc",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-92aece-to-ubnet1",
+      "source": "vpc-0d96c4c85f792aece",
+      "target": "subnet1",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-92aece-to-bnet-2",
+      "source": "vpc-0d96c4c85f792aece",
+      "target": "subnet-2",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-1172ae-to-c2-abc",
+      "source": "subnet-0f162aeffdc1172ae",
+      "target": "ec2-abc",
+      "type": "animatedEdge",
+      "label": "contains"
+    },
+    {
+      "id": "edge-3ef13b-to-0bdbe8",
+      "source": "vpc-0c0683d3f1b3ef13b",
+      "target": "subnet-0e43806606a0bdbe8",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-3ef13b-to-08cc3c",
+      "source": "vpc-0c0683d3f1b3ef13b",
+      "target": "subnet-0329ab3ddf808cc3c",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-3ef13b-to-2b75cf",
+      "source": "vpc-0c0683d3f1b3ef13b",
+      "target": "subnet-0d2e36bb9842b75cf",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-3ef13b-to-a8eef0",
+      "source": "vpc-0c0683d3f1b3ef13b",
+      "target": "subnet-010032697b6a8eef0",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-3ef13b-to-bc6c99",
+      "source": "vpc-0c0683d3f1b3ef13b",
+      "target": "subnet-012c2e64384bc6c99",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    },
+    {
+      "id": "edge-3ef13b-to-0b54bd",
+      "source": "vpc-0c0683d3f1b3ef13b",
+      "target": "subnet-0641f7bc19f0b54bd",
+      "type": "animatedEdge",
+      "label": "VPC Subnet Network"
+    }
+  ]
+}
