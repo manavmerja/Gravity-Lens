@@ -1,12 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
-from app.routers import aws_accounts
+from app.routers import aws_accounts, graph
 from app.models.models import ScanJob, ScanStatus
 from app.database import SessionLocal
 # pyrefly: ignore [missing-import]
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 logger = logging.getLogger(__name__)
 Base.metadata.create_all(bind=engine)
@@ -25,15 +30,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(aws_accounts.router) #  Imports and mounts all endpoints defined inside your aws_accounts router. means All API Endpoints will be under '/api/aws' url.
+app.include_router(aws_accounts.router)
+app.include_router(graph.router)
 
 
 def process_pending_scans():
     """
-    Scheduler runs this every 60 seconds.
+    Scheduler runs every 5 minutes.
     Picks up pending scan jobs and runs them.
     """
     from app.engines.scan_orchestrator import scan_orchestrator
+
     db = SessionLocal()
     try:
         pending_jobs = db.query(ScanJob).filter(
@@ -52,7 +59,13 @@ def process_pending_scans():
 
 # Start scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(process_pending_scans, 'interval', seconds=60)
+scheduler.add_job(
+    process_pending_scans,
+    "interval",
+    seconds=300,
+    max_instances=1,
+    coalesce=True
+)
 scheduler.start()
 
 
@@ -66,27 +79,28 @@ def health_check():
 
 
 @app.post("/api/scan/trigger/{account_id}")
-def trigger_manual_scan(account_id: str, db=None):
+def trigger_manual_scan(account_id: str):
     """Manually trigger a scan for testing."""
-    from app.database import get_db
-    from fastapi import Depends
     from app.models.models import AwsAccount
-    import uuid
 
     db = SessionLocal()
-    account = db.query(AwsAccount).filter(
-        AwsAccount.account_id == account_id
-    ).first()
+    try:
+        account = db.query(AwsAccount).filter(
+            AwsAccount.account_id == account_id
+        ).first()
 
-    if not account:
-        return {"error": "Account not found"}
+        if not account:
+            return {"error": "Account not found"}
 
-    job = ScanJob(
-        account_id=account.id,
-        status=ScanStatus.pending,
-        triggered_by="manual"
-    )
-    db.add(job)
-    db.commit()
+        job = ScanJob(
+            account_id=account.id,
+            status=ScanStatus.pending,
+            triggered_by="manual"
+        )
+        db.add(job)
+        db.commit()
 
-    return {"message": "Scan queued", "job_id": str(job.id)}
+        return {"message": "Scan queued", "job_id": str(job.id)}
+
+    finally:
+        db.close()
