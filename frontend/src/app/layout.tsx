@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import AppNavbar from "@/components/shared/AppNavbar";
+import { Preloader } from "@/components/ui/preloader";
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
@@ -19,7 +20,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased bg-[#0A0A0F] text-white`}>
+      <body className={`${spaceGrotesk.variable} font-sans antialiased bg-[#0A0A0F] text-white`}>
+        <Preloader />
         <AppNavbar />
         {children}
       </body>
