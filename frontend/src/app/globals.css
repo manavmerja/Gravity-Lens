@@ -87,4 +87,19 @@
     background: linear-gradient(#111118, #111118) padding-box,
       linear-gradient(135deg, #6366F1, #8B5CF6) border-box;
   }
+
+  @keyframes aurora-text {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .aurora-text {
+    background: linear-gradient(135deg, #FF0080, #7928CA, #0070F3, #38bdf8, #FF0080);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: aurora-text 8s ease infinite;
+  }
 }
