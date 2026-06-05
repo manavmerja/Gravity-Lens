@@ -281,11 +281,11 @@ const auditChecks = [
   { service: "IAM", checkName: "MFA Enforcement Checked", status: "passed" },
   { service: "VPC", checkName: "Public Port 22 Ingress Scan", status: "warning" },
   { service: "S3", checkName: "Public Access Block Audit", status: "passed" },
-  { service: "CloudTrail", checkName: "Log Integrity Audited", status: "passed" },
+  { service: "EKS", checkName: "Cluster Configuration Drift", status: "failed" },
   { service: "RDS", checkName: "DB Storage Encryption check", status: "passed" },
   { service: "KMS", checkName: "Key Rotation Schedule check", status: "passed" },
   { service: "EC2", checkName: "Unused SGs Cleanup Scan", status: "warning" },
-  { service: "IAM", checkName: "Root Access Key Detection", status: "failed" },
+  { service: "API", checkName: "Root Access Key Detection", status: "failed" },
 ];
 
 function LiveComplianceFeed() {
