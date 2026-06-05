@@ -38,7 +38,17 @@ export function ScrollToTop() {
           whileHover={{ y: -4, scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={scrollToTop}
-
+          className={cn(
+            "fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full",
+            "border border-white bg-white text-black shadow-[0_4px_20px_rgba(255,255,255,0.25)]",
+            "hover:bg-neutral-100 hover:border-neutral-200",
+            "transition-all duration-300 cursor-pointer outline-none"
+          )}
+          aria-label="Scroll to top"
+        >
+          {/* Subtle light glow layer behind white button */}
+          <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300 blur-sm -z-10" />
+          <IconArrowUp className="w-5 h-5 text-black" stroke={2.5} />
         </motion.button>
       )}
     </AnimatePresence>
