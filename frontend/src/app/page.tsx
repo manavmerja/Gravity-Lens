@@ -9,6 +9,7 @@ import { LiquidButton } from "@/components/ui/liquid-button";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { BentoGrid } from "@/components/sections/bento-grid";
 import { DotPattern } from "@/components/ui/dot-pattern";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -101,6 +102,7 @@ export default function Home() {
         />
         <BentoGrid />
       </div>
+      <ScrollToTop />
     </main>
   );
 }
