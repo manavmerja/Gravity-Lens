@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { 
   IconHistory, 
   IconBinaryTree, 
@@ -167,16 +167,105 @@ function AutoMappingBeamDemo() {
   );
 }
 
-export function BentoGrid() {
-  const [activeTimeStep, setActiveTimeStep] = useState(2);
-  const [showDriftFix, setShowDriftFix] = useState(false);
+function BentoTimeline() {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const timelineSteps = [
-    { time: "10:15 AM", title: "VPC Created", desc: "US-East subnet allocation complete." },
-    { time: "11:30 AM", title: "RDS Database Scale", desc: "db.t3.medium upgraded to db.r6g.large." },
-    { time: "02:10 PM", title: "IAM Policy Change", desc: "Sarah modified admin role permissions." },
-    { time: "04:45 PM", title: "Security Group Edit", desc: "Port 22 opened to public (0.0.0.0/0)." }
+  const { scrollXProgress } = useScroll({
+    container: containerRef,
+  });
+
+  const opacityTransform = useTransform(scrollXProgress, [0, 0.1], [0, 1]);
+
+  const timelineData = [
+    {
+      time: "10:15 AM",
+      content: (
+        <div className="flex flex-col items-center">
+          <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Provisioning</span>
+          <h4 className="text-xs font-bold text-white mt-2">VPC Cluster Created</h4>
+          <p className="text-[10px] text-neutral-400 mt-1 max-w-[180px]">Mapped 24 subnet allocations across 3 Availability Zones.</p>
+        </div>
+      )
+    },
+    {
+      time: "11:30 AM",
+      content: (
+        <div className="flex flex-col items-center">
+          <span className="text-[9px] font-semibold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">Scaling Event</span>
+          <h4 className="text-xs font-bold text-white mt-2">RDS Instance Upgraded</h4>
+          <p className="text-[10px] text-neutral-400 mt-1 max-w-[180px]">Scaled db.t3.medium to db.r6g.large due to CPU load.</p>
+        </div>
+      )
+    },
+    {
+      time: "02:10 PM",
+      content: (
+        <div className="flex flex-col items-center">
+          <span className="text-[9px] font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">IAM Drift</span>
+          <h4 className="text-xs font-bold text-white mt-2">Sarah | Cloud Arch</h4>
+          <p className="text-[10px] text-neutral-400 mt-1 max-w-[180px]">Manually edited admin role adding wildcards (s3:*).</p>
+        </div>
+      )
+    },
+    {
+      time: "04:45 PM",
+      content: (
+        <div className="flex flex-col items-center">
+          <span className="text-[9px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">Security Warning</span>
+          <h4 className="text-xs font-bold text-white mt-2">Port 22 Opened</h4>
+          <p className="text-[10px] text-neutral-400 mt-1 max-w-[180px]">SSH ingress security rule opened globally to 0.0.0.0/0.</p>
+        </div>
+      )
+    }
   ];
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative w-full overflow-x-auto overflow-y-hidden mt-6 pr-2 select-none scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent py-4"
+    >
+      <div className="relative pt-12 pb-2 min-w-max">
+        {/* Horizontal Line Track */}
+        <div
+          className="absolute left-6 right-6 top-[22px] h-[2px] bg-neutral-800"
+        >
+          <motion.div
+            style={{
+              scaleX: scrollXProgress,
+              transformOrigin: "left",
+              opacity: opacityTransform,
+            }}
+            className="absolute inset-0 h-[2px] bg-gradient-to-r from-indigo-500 via-purple-500 to-transparent rounded-full"
+          />
+        </div>
+
+        <div className="flex flex-row gap-12 px-6">
+          {timelineData.map((item, index) => (
+            <div key={index} className="relative flex flex-col items-center text-center w-[200px] shrink-0">
+              {/* Timeline indicator circle intersecting the line */}
+              <div className="absolute top-[-40px] z-40 flex h-5 w-5 items-center justify-center rounded-full bg-[#121218] border border-white/10">
+                <div className="h-2 w-2 rounded-full bg-indigo-500/50 border border-indigo-500/80" />
+              </div>
+
+              {/* Time Title */}
+              <span className="text-xs font-bold text-neutral-500 mb-1">
+                {item.time}
+              </span>
+
+              {/* Details Content */}
+              <div className="w-full">
+                {item.content}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function BentoGrid() {
+  const [showDriftFix, setShowDriftFix] = useState(false);
 
   return (
     <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
@@ -201,7 +290,7 @@ export function BentoGrid() {
           <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-[100px]" />
           
           <div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-2">
               <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
                 <IconHistory className="w-6 h-6" />
               </div>
@@ -211,34 +300,12 @@ export function BentoGrid() {
               </div>
             </div>
 
-            {/* Interactive Timeline Graph */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-8 relative z-10">
-              {timelineSteps.map((step, idx) => (
-                <div 
-                  key={idx}
-                  onClick={() => setActiveTimeStep(idx)}
-                  className={cn(
-                    "cursor-pointer p-4 rounded-2xl border transition-all duration-300 select-none",
-                    activeTimeStep === idx 
-                      ? "bg-indigo-600/15 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                      : "bg-[#161622]/40 border-white/5 text-neutral-400 hover:border-white/10 hover:bg-[#161622]/70"
-                  )}
-                >
-                  <span className={cn(
-                    "text-xs font-semibold block mb-1",
-                    activeTimeStep === idx ? "text-indigo-400" : "text-neutral-500"
-                  )}>
-                    {step.time}
-                  </span>
-                  <h4 className="font-bold text-sm text-white mb-1">{step.title}</h4>
-                  <p className="text-xs text-neutral-400 leading-normal">{step.desc}</p>
-                </div>
-              ))}
-            </div>
+            {/* Interactive Timeline follow component */}
+            <BentoTimeline />
           </div>
 
-          <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-xs text-neutral-500">
-            <span>Click steps to scrub back in time</span>
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-xs text-neutral-500">
+            <span>Scroll inside timeline to scrub back in time</span>
             <span className="text-indigo-400 font-medium group-hover:underline cursor-pointer">Explore Timeline Snapshot →</span>
           </div>
         </motion.div>
