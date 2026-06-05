@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import AppNavbar from "@/components/shared/AppNavbar";
 import { Preloader } from "@/components/ui/preloader";
+import { SmoothScrollProvider } from "@/components/shared/smooth-scroll";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -23,7 +24,9 @@ export default function RootLayout({
       <body className={`${spaceGrotesk.variable} font-sans antialiased bg-[#0A0A0F] text-white`}>
         <Preloader />
         <AppNavbar />
-        {children}
+        <SmoothScrollProvider>
+          {children}
+        </SmoothScrollProvider>
       </body>
     </html>
   );
