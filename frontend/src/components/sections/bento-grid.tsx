@@ -8,7 +8,11 @@ import {
   IconShieldHeart, 
   IconGitCompare,
   IconCircleCheck,
-  IconAlertCircle
+  IconAlertCircle,
+  IconPlayerPlay,
+  IconPlayerPause,
+  IconTrash,
+  IconActivity
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
@@ -264,6 +268,143 @@ function BentoTimeline() {
   );
 }
 
+type AuditLogEntry = {
+  id: string;
+  timestamp: string;
+  service: string;
+  checkName: string;
+  status: "passed" | "warning" | "failed";
+  latency: string;
+};
+
+const auditChecks = [
+  { service: "IAM", checkName: "MFA Enforcement Checked", status: "passed" },
+  { service: "VPC", checkName: "Public Port 22 Ingress Scan", status: "warning" },
+  { service: "S3", checkName: "Public Access Block Audit", status: "passed" },
+  { service: "CloudTrail", checkName: "Log Integrity Audited", status: "passed" },
+  { service: "RDS", checkName: "DB Storage Encryption check", status: "passed" },
+  { service: "KMS", checkName: "Key Rotation Schedule check", status: "passed" },
+  { service: "EC2", checkName: "Unused SGs Cleanup Scan", status: "warning" },
+  { service: "IAM", checkName: "Root Access Key Detection", status: "failed" },
+];
+
+function LiveComplianceFeed() {
+  const [logs, setLogs] = useState<AuditLogEntry[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const generateLog = (): AuditLogEntry => {
+    const date = new Date();
+    const randomCheck = auditChecks[Math.floor(Math.random() * auditChecks.length)];
+    return {
+      id: Math.random().toString(36).slice(2, 9),
+      timestamp: date.toLocaleTimeString("en-US", {
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+      service: randomCheck.service,
+      checkName: randomCheck.checkName,
+      status: randomCheck.status as "passed" | "warning" | "failed",
+      latency: `${Math.floor(Math.random() * 80) + 10}ms`,
+    };
+  };
+
+  useEffect(() => {
+    // Generate initial logs
+    const initialLogs = Array.from({ length: 4 }, generateLog);
+    setLogs(initialLogs);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+
+    const interval = setInterval(() => {
+      setLogs((prev) => {
+        const newLog = generateLog();
+        const newLogs = [...prev, newLog];
+        if (newLogs.length > 20) return newLogs.slice(newLogs.length - 20);
+        return newLogs;
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  useEffect(() => {
+    if (scrollRef.current && !isPaused) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    }
+  }, [logs, isPaused]);
+
+  return (
+    <div className="flex flex-col h-[280px] bg-[#08080C]/80 border border-white/5 rounded-2xl p-4 mt-6 overflow-hidden relative z-10 shadow-inner">
+      {/* Header controls */}
+      <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-2 select-none">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="text-xs font-bold text-neutral-300">Live Audit Logs</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            className="text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 p-1.5 rounded-lg transition-colors cursor-pointer"
+            title={isPaused ? "Resume Feed" : "Pause Feed"}
+          >
+            {isPaused ? <IconPlayerPlay className="w-3.5 h-3.5" /> : <IconPlayerPause className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            onClick={() => setLogs([])}
+            className="text-neutral-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 p-1.5 rounded-lg transition-colors cursor-pointer"
+            title="Clear Logs"
+          >
+            <IconTrash className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Logs Viewport */}
+      <div 
+        ref={scrollRef}
+        className="grow overflow-y-auto pr-1 select-none scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent space-y-1.5 py-1"
+      >
+        {logs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-neutral-500 text-xs gap-1 py-10">
+            <IconActivity className="w-5 h-5 animate-pulse text-indigo-400" />
+            <span>Waiting for audits...</span>
+          </div>
+        ) : (
+          logs.map((log) => (
+            <div
+              key={log.id}
+              className="flex items-center gap-2 hover:bg-white/[0.02] px-2 py-1 rounded-md transition-colors text-[10px] sm:text-xs font-mono"
+            >
+              <span className="text-neutral-500 w-12 shrink-0">{log.timestamp}</span>
+              <span className="text-indigo-400 font-bold shrink-0 w-8">{log.service}</span>
+              <span className="text-neutral-300 grow truncate">{log.checkName}</span>
+              <span className="text-neutral-500 text-end shrink-0 w-8">{log.latency}</span>
+              <span className={cn(
+                "shrink-0 text-[8px] font-semibold px-2 py-0.5 rounded-full border tracking-wide scale-95",
+                {
+                  "text-green-400 bg-green-500/10 border-green-500/20": log.status === "passed",
+                  "text-amber-400 bg-amber-500/10 border-amber-500/20": log.status === "warning",
+                  "text-red-400 bg-red-500/10 border-red-500/20": log.status === "failed",
+                }
+              )}>
+                {log.status.toUpperCase()}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function BentoGrid() {
   const [showDriftFix, setShowDriftFix] = useState(false);
 
@@ -328,27 +469,8 @@ export function BentoGrid() {
               </div>
             </div>
 
-            {/* Audit Status Items */}
-            <div className="space-y-3 mt-6">
-              {[
-                { label: "MFA Enforcement Check", status: "passed" },
-                { label: "Public VPC Ports Audit", status: "warning" },
-                { label: "IAM Role Privileges Check", status: "passed" }
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-[#161622]/40 border border-white/5">
-                  <span className="text-sm text-neutral-300">{item.label}</span>
-                  {item.status === "passed" ? (
-                    <span className="flex items-center gap-1 text-xs text-green-400 font-semibold bg-green-500/10 px-2.5 py-1 rounded-full border border-green-500/20">
-                      <IconCircleCheck className="w-3.5 h-3.5" /> Checked
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-xs text-amber-400 font-semibold bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20 animate-pulse">
-                      <IconAlertCircle className="w-3.5 h-3.5" /> 1 Warning
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+            {/* Live compliance log feed console */}
+            <LiveComplianceFeed />
           </div>
 
           <div className="mt-8 text-xs text-neutral-500">
