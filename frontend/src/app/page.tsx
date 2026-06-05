@@ -1,12 +1,35 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { AnimatedBadge } from "@/components/ui/animated-badge";
 import { StarsBackground } from "@/components/ui/stars-background";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 import { FloatingElements } from "@/components/ui/floating-elements";
 import { LiquidButton } from "@/components/ui/liquid-button";
+import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 
 export default function Home() {
+  const [typewriterKey, setTypewriterKey] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTypewriterKey((prev) => prev + 1);
+    }, 7000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const taglineWords = [
+    { text: "Map," },
+    { text: "track," },
+    { text: "and" },
+    { text: "reconstruct" },
+    { text: "your" },
+    { text: "cloud" },
+    { text: "setup" },
+    { text: "in" },
+    { text: "real-time.", className: "text-[#6366F1] font-bold" },
+  ];
+
   return (
     <main className="min-h-screen bg-[#0A0A0F] text-white relative overflow-hidden">
       <StarsBackground className="min-h-screen flex flex-col items-center justify-start pt-36 relative w-full bg-[#0A0A0F]">
@@ -44,8 +67,18 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Action Button */}
-          <div className="mt-12">
+          {/* Typewriter Subtitle */}
+          <div className="mt-4">
+            <TypewriterEffectSmooth 
+              key={typewriterKey}
+              words={taglineWords} 
+              className="text-xs sm:text-sm md:text-base font-normal my-0"
+              cursorClassName="bg-[#6366F1] h-4 sm:h-5 lg:h-6"
+            />
+          </div>
+
+          {/* Action Button - Moved further down to bottom area */}
+          <div className="mt-28">
             <LiquidButton size="lg" className="shadow-[0_8px_30px_rgb(99,102,241,0.15)]">
               Jump Into Gravity <span className="ml-1 group-hover:translate-x-1 transition-transform duration-200">→</span>
             </LiquidButton>
