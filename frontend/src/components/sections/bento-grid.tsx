@@ -11,6 +11,161 @@ import {
   IconAlertCircle
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
+import { useRef } from "react";
+import { AnimatedBeam } from "@/components/ui/animated-beam";
+
+import { 
+  IconUser,
+  IconCloud,
+  IconServer,
+  IconDatabase,
+  IconNetwork,
+  IconBrandAws,
+  IconBucket
+} from "@tabler/icons-react";
+
+const Circle = React.forwardRef<
+  HTMLDivElement,
+  { className?: string; children?: React.ReactNode }
+>(({ className, children }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#161622]/90 text-white shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-indigo-500/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+});
+Circle.displayName = "Circle";
+
+function AutoMappingBeamDemo() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+  const cloudfrontRef = useRef<HTMLDivElement>(null);
+  const gatewayRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
+  const ec2Ref = useRef<HTMLDivElement>(null);
+  const rdsRef = useRef<HTMLDivElement>(null);
+  const s3Ref = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative flex w-full h-[320px] items-center justify-center overflow-hidden py-4 px-2 bg-[#0E0E12]/40 rounded-2xl border border-white/5"
+    >
+      <div className="flex w-full max-w-sm flex-row items-stretch justify-between gap-4 z-10">
+        {/* Left Column - Inputs */}
+        <div className="flex flex-col justify-center gap-6">
+          <Circle ref={userRef} className="size-12 border-blue-500/20 text-blue-400">
+            <IconUser className="w-5 h-5" />
+          </Circle>
+          <Circle ref={cloudfrontRef} className="size-12 border-sky-500/20 text-sky-400">
+            <IconCloud className="w-5 h-5" />
+          </Circle>
+          <Circle ref={gatewayRef} className="size-12 border-teal-500/20 text-teal-400">
+            <IconNetwork className="w-5 h-5" />
+          </Circle>
+        </div>
+
+        {/* Center Column - AWS Colored Center Core */}
+        <div className="flex flex-col justify-center">
+          <Circle ref={centerRef} className="size-16 border-[#FF9900]/40 bg-[#FF9900]/10 text-[#FF9900] shadow-[0_0_25px_rgba(255,153,0,0.25)] hover:border-[#FF9900]/60">
+            <IconBrandAws className="w-9 h-9" stroke={1.5} />
+          </Circle>
+        </div>
+
+        {/* Right Column - Outputs */}
+        <div className="flex flex-col justify-center gap-6">
+          <Circle ref={ec2Ref} className="size-12 border-purple-500/20 text-purple-400">
+            <IconServer className="w-5 h-5" />
+          </Circle>
+          <Circle ref={rdsRef} className="size-12 border-pink-500/20 text-pink-400">
+            <IconDatabase className="w-5 h-5" />
+          </Circle>
+          <Circle ref={s3Ref} className="size-12 border-amber-500/20 text-amber-400">
+            <IconBucket className="w-5 h-5" />
+          </Circle>
+        </div>
+      </div>
+
+      {/* Animated Beams */}
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={userRef}
+        toRef={centerRef}
+        duration={3}
+        pathWidth={3}
+        pathOpacity={0.4}
+        gradientStartColor="#3b82f6"
+        gradientStopColor="#6366f1"
+        pathColor="rgba(255,255,255,0.15)"
+      />
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={cloudfrontRef}
+        toRef={centerRef}
+        duration={3}
+        delay={0.5}
+        pathWidth={3}
+        pathOpacity={0.4}
+        gradientStartColor="#0ea5e9"
+        gradientStopColor="#6366f1"
+        pathColor="rgba(255,255,255,0.15)"
+      />
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={gatewayRef}
+        toRef={centerRef}
+        duration={3}
+        delay={1}
+        pathWidth={3}
+        pathOpacity={0.4}
+        gradientStartColor="#14b8a6"
+        gradientStopColor="#6366f1"
+        pathColor="rgba(255,255,255,0.15)"
+      />
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={centerRef}
+        toRef={ec2Ref}
+        duration={3}
+        pathWidth={3}
+        pathOpacity={0.4}
+        gradientStartColor="#6366f1"
+        gradientStopColor="#a855f7"
+        pathColor="rgba(255,255,255,0.15)"
+      />
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={centerRef}
+        toRef={rdsRef}
+        duration={3}
+        delay={0.5}
+        pathWidth={3}
+        pathOpacity={0.4}
+        gradientStartColor="#6366f1"
+        gradientStopColor="#ec4899"
+        pathColor="rgba(255,255,255,0.15)"
+      />
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={centerRef}
+        toRef={s3Ref}
+        duration={3}
+        delay={1}
+        pathWidth={3}
+        pathOpacity={0.4}
+        gradientStartColor="#6366f1"
+        gradientStopColor="#f59e0b"
+        pathColor="rgba(255,255,255,0.15)"
+      />
+    </div>
+  );
+}
 
 export function BentoGrid() {
   const [activeTimeStep, setActiveTimeStep] = useState(2);
@@ -152,23 +307,8 @@ export function BentoGrid() {
               </div>
             </div>
 
-            {/* Glowing diagram connectivity mockup */}
-            <div className="flex flex-col items-center justify-center py-6 relative">
-              <div className="relative flex items-center justify-between w-full max-w-[200px]">
-                {/* Connection line */}
-                <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-[1px] bg-gradient-to-r from-sky-400 via-indigo-500 to-sky-400 z-0">
-                  <div className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_10px_#38bdf8] animate-ping absolute left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                </div>
-                {/* Node 1 */}
-                <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/30 flex items-center justify-center z-10 shadow-[0_0_15px_rgba(56,189,248,0.1)]">
-                  <span className="text-xs font-bold text-sky-400">VPC</span>
-                </div>
-                {/* Node 2 */}
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-400/30 flex items-center justify-center z-10 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
-                  <span className="text-xs font-bold text-purple-400">EC2</span>
-                </div>
-              </div>
-            </div>
+            {/* Glowing diagram connectivity mockup using Animated Beam */}
+            <AutoMappingBeamDemo />
           </div>
 
           <div className="mt-8 text-xs text-neutral-500">
