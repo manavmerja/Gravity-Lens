@@ -4,6 +4,7 @@ import { AnimatedBadge } from "@/components/ui/animated-badge";
 import { StarsBackground } from "@/components/ui/stars-background";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 import { FloatingElements } from "@/components/ui/floating-elements";
+import { LiquidButton } from "@/components/ui/liquid-button";
 
 export default function Home() {
   return (
@@ -41,6 +42,13 @@ export default function Home() {
                 words={["Story.", "Timeline.", "Map.", "History.", "Blueprint."]}
               />
             </div>
+          </div>
+
+          {/* Action Button */}
+          <div className="mt-12">
+            <LiquidButton size="lg" className="shadow-[0_8px_30px_rgb(99,102,241,0.15)]">
+              Jump Into Gravity <span className="ml-1 group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </LiquidButton>
           </div>
         </div>
       </StarsBackground>

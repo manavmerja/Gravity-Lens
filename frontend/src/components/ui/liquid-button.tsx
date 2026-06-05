@@ -62,6 +62,7 @@ export const LiquidButton = React.forwardRef<HTMLButtonElement, LiquidButtonProp
           } as React.CSSProperties}
           {...props}
         >
+          
           {/* Liquid wave background fill effect */}
           <motion.div
             className="absolute bottom-0 left-0 right-0 pointer-events-none"
