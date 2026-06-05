@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useRef } from "react";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
+import { DotPattern } from "@/components/ui/dot-pattern";
 
 import { 
   IconUser,

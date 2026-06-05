@@ -8,6 +8,7 @@ import { FloatingElements } from "@/components/ui/floating-elements";
 import { LiquidButton } from "@/components/ui/liquid-button";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { BentoGrid } from "@/components/sections/bento-grid";
+import { DotPattern } from "@/components/ui/dot-pattern";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -90,8 +91,14 @@ export default function Home() {
         </StarsBackground>
       </div>
 
-      {/* Subsequent Scroll Sections on solid dark black background */}
-      <div className="relative bg-[#0A0A0F] z-20">
+      {/* Subsequent Scroll Sections on solid dark black background with DotPattern */}
+      <div className="relative bg-[#0A0A0F] z-20 w-full overflow-hidden">
+        <DotPattern
+          glow
+          className="absolute inset-0 h-full w-full text-indigo-400/20 [mask-image:radial-gradient(ellipse_at_center,white_35%,transparent_85%)]"
+          width={24}
+          height={24}
+        />
         <BentoGrid />
       </div>
     </main>
