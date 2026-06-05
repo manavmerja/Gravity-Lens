@@ -8,7 +8,6 @@ import { FloatingElements } from "@/components/ui/floating-elements";
 import { LiquidButton } from "@/components/ui/liquid-button";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { BentoGrid } from "@/components/sections/bento-grid";
-import { Spotlight } from "@/components/ui/spotlight-new";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -16,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setTypewriterKey((prev) => prev + 1);
-    }, 7000);
+    }, 20000);
     return () => clearInterval(interval);
   }, []);
 
@@ -37,7 +36,6 @@ export default function Home() {
       {/* Hero Home Screen Section (with Stars & Glows) */}
       <div className="relative min-h-screen w-full">
         <StarsBackground className="min-h-screen flex flex-col items-center justify-start pt-36 relative w-full bg-[#0A0A0F]">
-          <Spotlight />
           <FloatingElements />
           {/* Subtle background glow grid */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none z-0" />
