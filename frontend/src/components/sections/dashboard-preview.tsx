@@ -84,6 +84,8 @@ export function DashboardPreview() {
           </div>
         </div>
 
+
+
         {/* Dashboard Preview panel (Right Column) */}
         <div className="lg:col-span-7 bg-white/[0.01] border border-white/10 rounded-2xl backdrop-blur-md relative overflow-hidden shadow-2xl flex flex-col min-h-[460px]">
           
