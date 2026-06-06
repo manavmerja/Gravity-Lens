@@ -89,6 +89,9 @@ export default function Home() {
               </LiquidButton>
             </div>
           </div>
+          
+          {/* Smooth transition gradient overlay to fade out stars and background glow */}
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none z-10" />
         </StarsBackground>
       </div>
 
