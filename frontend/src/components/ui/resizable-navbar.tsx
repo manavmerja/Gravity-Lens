@@ -98,9 +98,19 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
 
 // --- Helper Components ---
 export const NavbarLogo = () => {
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
+
   return (
     <Link
       href="/"
+      onClick={handleLogoClick}
       className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-white"
     >
       <div className="relative h-8 w-8">
