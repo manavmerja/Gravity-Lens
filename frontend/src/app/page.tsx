@@ -10,6 +10,7 @@ import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { BentoGrid } from "@/components/sections/bento-grid";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
+import { DashboardPreview } from "@/components/sections/dashboard-preview";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -104,6 +105,9 @@ export default function Home() {
           height={24}
         />
         <BentoGrid />
+        
+        {/* Dashboard Preview Section containing multiple visual charts */}
+        <DashboardPreview />
       </div>
       <ScrollToTop />
     </main>

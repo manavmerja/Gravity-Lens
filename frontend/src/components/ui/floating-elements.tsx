@@ -9,6 +9,8 @@ import {
   IconBrandCloudflare 
 } from "@tabler/icons-react";
 
+import StatusIndicator from "@/components/8starlabs-ui/status-indicator";
+
 export function FloatingElements() {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
@@ -47,7 +49,7 @@ export function FloatingElements() {
           </svg>
           {/* Badge Capsule */}
           <div className="flex items-center gap-1.5 bg-[#0070F3] text-white px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-[0_8px_30px_rgb(0,112,243,0.3)] border border-[#0070F3]/30">
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            <StatusIndicator state="active" size="sm" />
             Sarah | Cloud Arch
           </div>
         </div>
