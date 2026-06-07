@@ -12,6 +12,7 @@ import {
 } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import StatusIndicator from "@/components/8starlabs-ui/status-indicator";
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 
 const linksPro = {
   group: "Product",
@@ -71,12 +72,28 @@ export function Footer() {
   const [isSdkOpen, setIsSdkOpen] = useState(false);
 
   return (
-    <footer className="relative z-30 py-16 bg-[#0A0A0F] border-t border-white/5 text-gray-400">
-      {/* Background glow highlights */}
-      <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-[#6b1fad]/5 rounded-full blur-[100px] pointer-events-none" />
+    <footer className="relative z-30 bg-[#0A0A0F] border-t border-white/5 text-gray-400">
+      <BackgroundBeamsWithCollision className="py-16 w-full h-auto">
+        {/* Background glow highlights */}
+        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-[#6b1fad]/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-5">
+        <div className="mx-auto max-w-6xl px-6 relative z-10 w-full">
+          {/* Header / CTA inside footer with Beams Collision */}
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl relative z-20 md:text-5xl lg:text-6xl font-bold text-center text-white font-sans tracking-tight">
+              Stop Cloud Drift.{" "}
+              <div className="relative mx-auto inline-block w-max [filter:drop-shadow(0px_1px_3px_rgba(27,_37,_80,_0.14))]">
+                <div className="absolute left-0 top-[1px] bg-clip-text bg-no-repeat text-transparent bg-gradient-to-r py-4 from-purple-500 via-violet-500 to-pink-500 [text-shadow:0_0_rgba(0,0,0,0.1)] select-none">
+                  <span>Autonomous Audits.</span>
+                </div>
+                <div className="relative bg-clip-text text-transparent bg-no-repeat bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500 py-4 select-none">
+                  <span>Autonomous Audits.</span>
+                </div>
+              </div>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand Col */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 space-y-4">
             <Link href="/" className="flex items-center gap-3 text-white font-bold text-xl tracking-wider">
@@ -226,7 +243,8 @@ export function Footer() {
             &copy; {new Date().getFullYear()} GravityLens Inc. All rights reserved.
           </p>
         </div>
-      </div>
+        </div>
+      </BackgroundBeamsWithCollision>
     </footer>
   );
 }

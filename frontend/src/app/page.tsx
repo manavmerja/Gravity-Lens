@@ -13,6 +13,7 @@ import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { DashboardPreview } from "@/components/sections/dashboard-preview";
 import { FAQSection } from "@/components/sections/faq-section";
 import { CTASection } from "@/components/sections/cta-section";
+import { Footer } from "@/components/sections/footer";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -116,6 +117,9 @@ export default function Home() {
 
         {/* Orbiting Stack CTA Section */}
         <CTASection />
+
+        {/* Site Footer */}
+        <Footer />
       </div>
       <ScrollToTop />
     </main>
