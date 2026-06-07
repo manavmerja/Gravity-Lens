@@ -43,12 +43,22 @@ export function OrbitingCircles({
 }: OrbitingCirclesProps) {
   const calculatedDuration = duration / speed;
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  const isInView = useInView(ref, { once: false, amount: 0.2 });
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
+    setShouldAnimate(isInView);
+
     if (isInView) {
-      setShouldAnimate(true);
+      const interval = setInterval(() => {
+        setShouldAnimate(false);
+        setTimeout(() => {
+          setShouldAnimate(true);
+        }, 50);
+        //timer set 10 seconds
+      }, 10000);
+
+      return () => clearInterval(interval);
     }
   }, [isInView]);
 
@@ -134,7 +144,6 @@ const OrbitingCirclesAnimation = () => {
       <div className="relative flex h-[50%] min-h-[240px] w-full shrink-0 items-center justify-center overflow-visible">
         {/* Soft edge shading */}
         <div className="from-[#0A0A0F] pointer-events-none absolute bottom-0 left-0 z-20 h-20 w-full bg-gradient-to-t to-transparent" />
-        <div className="from-[#0A0A0F] pointer-events-none absolute top-0 left-0 z-20 h-10 w-full bg-gradient-to-b to-transparent" />
         
         <div className="relative -mt-60 flex h-full w-full items-center justify-center">
           {/* Inner Circle (Radius: 150) */}
@@ -165,7 +174,7 @@ const OrbitingCirclesAnimation = () => {
 
 export function CTASection() {
   return (
-    <section className="relative min-h-[30rem] w-full overflow-hidden bg-[#0A0A0F] py-20 flex flex-col items-center justify-center border-t border-white/5">
+    <section className="relative min-h-[35rem] w-full overflow-hidden py-24 flex flex-col items-center justify-center">
       <OrbitingCirclesAnimation />
       
       {/* Background radial glow */}

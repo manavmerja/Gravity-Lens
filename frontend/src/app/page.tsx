@@ -12,6 +12,7 @@ import { DotPattern } from "@/components/ui/dot-pattern";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { DashboardPreview } from "@/components/sections/dashboard-preview";
 import { FAQSection } from "@/components/sections/faq-section";
+import { CTASection } from "@/components/sections/cta-section";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -112,6 +113,9 @@ export default function Home() {
 
         {/* FAQ Section with interactive accordion */}
         <FAQSection />
+
+        {/* Orbiting Stack CTA Section */}
+        <CTASection />
       </div>
       <ScrollToTop />
     </main>
