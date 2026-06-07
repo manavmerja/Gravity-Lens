@@ -14,8 +14,13 @@ import {
   NavbarButton,
 } from "@/components/ui/resizable-navbar";
 
+import { usePathname } from "next/navigation";
+
 export default function AppNavbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  if (pathname === "/auth") return null;
 
   // New requested navbar items
   const navItems = [
