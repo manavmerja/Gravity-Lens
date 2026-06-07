@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AppleHelloEffectLanguagesDemo } from "@/components/apple-hello-effect/apple-hello-effect-languages-demo";
+import { MacbookPro } from "@/components/eldoraui/macbook-pro";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -61,10 +62,11 @@ export default function AuthPage() {
 
         {/* Center handwriting animation and copy */}
         <div className="my-auto py-8 flex flex-col items-center justify-center z-10 w-full">
-          {/* Square Box Container for Animation */}
-          <div className="w-80 h-80 bg-[#09090E] border border-white/5 rounded-2xl flex flex-col items-center justify-center p-6 backdrop-blur-md shadow-2xl relative mb-8 overflow-hidden">
-            <div className="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
-            <AppleHelloEffectLanguagesDemo className="w-full h-auto max-h-24 text-white" />
+          {/* Macbook Pro Mockup for Animation */}
+          <div className="w-full max-w-sm sm:max-w-md xl:max-w-lg mb-8 flex items-center justify-center relative select-none">
+            <MacbookPro className="w-full h-auto text-neutral-950">
+              <AppleHelloEffectLanguagesDemo className="w-full h-auto max-h-[84px] px-8 sm:px-12 text-white" />
+            </MacbookPro>
           </div>
           <div className="text-center max-w-sm">
             <h1 className="text-2xl font-bold tracking-tight text-gray-200">
