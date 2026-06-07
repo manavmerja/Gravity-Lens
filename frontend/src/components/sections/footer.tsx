@@ -72,7 +72,7 @@ export function Footer() {
   const [isSdkOpen, setIsSdkOpen] = useState(false);
 
   return (
-    <footer className="relative z-30 bg-[#0A0A0F] border-t border-white/5 text-gray-400">
+    <footer className="relative z-30 bg-[#0A0A0F] text-gray-400">
       <BackgroundBeamsWithCollision className="py-16 w-full h-auto">
         {/* Background glow highlights */}
         <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-[#6b1fad]/5 rounded-full blur-[100px] pointer-events-none" />
