@@ -8,6 +8,7 @@ export interface MacbookProProps extends SVGProps<SVGSVGElement> {
   height?: number
   src?: string
   children?: React.ReactNode
+  bootlogoText?: string
 }
 
 export function MacbookPro({
@@ -15,6 +16,7 @@ export function MacbookPro({
   height = 400,
   src,
   children,
+  bootlogoText = "Gravity-AI",
   ...props
 }: MacbookProProps) {
   const [bootStatus, setBootStatus] = useState<"closed" | "bootlogo" | "ready">("closed")
@@ -95,9 +97,9 @@ export function MacbookPro({
                     <motion.span
                       animate={{ opacity: [0.4, 1, 0.4] }}
                       transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                      className="text-base font-extrabold tracking-[0.25em] bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-white uppercase"
+                      className="text-base font-extrabold tracking-[0.25em] bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-white uppercase text-center px-4"
                     >
-                      Gravity-AI
+                      {bootlogoText}
                     </motion.span>
                   </motion.div>
                 )}
