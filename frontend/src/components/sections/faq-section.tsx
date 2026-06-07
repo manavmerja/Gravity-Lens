@@ -40,9 +40,9 @@ export function FAQSection() {
   };
 
   return (
-    <section className="relative z-30 py-24 bg-black overflow-hidden border-t border-white/5">
-      {/* Background Gradient & Velvet Purple Glow (#6b1fad) */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-[#1E053A] to-black pointer-events-none" />
+    <section className="relative z-30 py-24 overflow-hidden">
+      {/* Background Gradient & Velvet Purple Glow (#6b1fad) with smooth top/bottom vertical fade */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1E053A]/40 to-transparent pointer-events-none" />
       <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#6b1fad]/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">

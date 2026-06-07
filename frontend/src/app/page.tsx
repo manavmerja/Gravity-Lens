@@ -11,6 +11,7 @@ import { BentoGrid } from "@/components/sections/bento-grid";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { DashboardPreview } from "@/components/sections/dashboard-preview";
+import { FAQSection } from "@/components/sections/faq-section";
 
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
@@ -108,6 +109,9 @@ export default function Home() {
         
         {/* Dashboard Preview Section containing multiple visual charts */}
         <DashboardPreview />
+
+        {/* FAQ Section with interactive accordion */}
+        <FAQSection />
       </div>
       <ScrollToTop />
     </main>
