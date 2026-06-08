@@ -55,7 +55,9 @@ class ScanOrchestrator:
                 return
 
             # Get temporary AWS credentials
-            credentials = aws_service._get_temp_credentials(aws_account.role_arn)
+            credentials = aws_service._get_temp_credentials(
+                aws_account.role_arn
+            )
             if not credentials:
                 scan_job.status = ScanStatus.failed
                 scan_job.error_message = "Failed to get AWS credentials"

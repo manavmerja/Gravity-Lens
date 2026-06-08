@@ -1,6 +1,7 @@
 # This file is REST Api endpoints
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.models import AwsAccount, User, ScanJob, ScanStatus
@@ -11,7 +12,7 @@ from app.schemas.aws_account import (
 )
 from app.services.aws_service import aws_service
 import logging
-from uuid import UUID
+from uuid import UUID as UUIDClass
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/aws", tags=["AWS Accounts"]) # Here tags means all the api endpoints in this file should be displayed under the tag name AWS Accounts in swagger ui
@@ -110,18 +111,31 @@ def get_all_accounts(db: Session = Depends(get_db)):
 
 
 @router.get("/accounts/{account_id}/status")
-def get_account_status(account_id: UUID, db: Session = Depends(get_db)):
+def get_account_status(account_id: str, db: Session = Depends(get_db)):
     """Get status of a connected AWS account."""
-    account = db.query(AwsAccount).filter(
-        AwsAccount.id == account_id
-    ).first()
+    parsed_uuid = None
+    try:
+        parsed_uuid = UUIDClass(account_id)
+    except ValueError:
+        parsed_uuid = None
+
+    query = db.query(AwsAccount)
+    if parsed_uuid:
+        account = query.filter(
+            or_(
+                AwsAccount.id == parsed_uuid,
+                AwsAccount.account_id == account_id,
+            )
+        ).first()
+    else:
+        account = query.filter(AwsAccount.account_id == account_id).first()
 
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
 
     # Get latest scan job
     latest_scan = db.query(ScanJob).filter(
-        ScanJob.account_id == account_id
+        ScanJob.account_id == account.id
     ).order_by(ScanJob.created_at.desc()).first()
 
     return {
