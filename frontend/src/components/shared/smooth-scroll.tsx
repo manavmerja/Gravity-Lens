@@ -15,6 +15,19 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       touchMultiplier: 1.5,
     });
 
+    // Add scroll class to body to disable pointer events on heavy elements (e.g. iframes) during scrolling
+    const onScroll = () => {
+      document.body.classList.add("is-scrolling");
+      
+      // Debounce removal of scrolling class
+      clearTimeout((window as any).scrollTimeout);
+      (window as any).scrollTimeout = setTimeout(() => {
+        document.body.classList.remove("is-scrolling");
+      }, 150);
+    };
+
+    lenis.on("scroll", onScroll);
+
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);

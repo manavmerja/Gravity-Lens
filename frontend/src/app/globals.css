@@ -235,3 +235,8 @@
 .animate-aurora-4 {
   animation: aurora-4 28s infinite alternate ease-in-out;
 }
+
+/* Disable pointer events on iframes during scroll to avoid focus hijacking & frame drops */
+.is-scrolling iframe {
+  pointer-events: none !important;
+}
