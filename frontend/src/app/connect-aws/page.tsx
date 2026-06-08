@@ -61,7 +61,7 @@ export default function ConnectAWSPage() {
         {/* Slowly-shifting organic Aurora blobs */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-[15%] -right-[15%] w-[500px] h-[500px] rounded-full bg-[#0025cc]/35 blur-[90px] animate-aurora-1" />
-          <div className="absolute -bottom-[15%] -left-[15%] w-[500px] h-[500px] rounded-full bg-[#00687a]/45 blur-[90px] animate-aurora-2" />
+          <div className="absolute -bottom-[15%] -left-[15%] w-[500px] h-[500px] rounded-full bg-[#42000b]/80 blur-[90px] animate-aurora-2" />
         </div>
         
         {/* Brand Link & Back Button */}
