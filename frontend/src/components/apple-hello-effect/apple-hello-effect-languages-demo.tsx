@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -11,11 +9,33 @@ import { AppleHelloEffectVietnamese } from "@/components/apple-hello-effect/appl
 import { AppleHelloEffectGujarati } from "@/components/apple-hello-effect/apple-hello-effect-gujarati"
 import { AppleHelloEffectRajasthani } from "@/components/apple-hello-effect/apple-hello-effect-rajasthani"
 
-export function AppleHelloEffectLanguagesDemo({ className }: { className?: string }) {
+export interface AppleHelloEffectLanguagesDemoProps {
+  className?: string
+  onCycleComplete?: () => void
+  resetTrigger?: any
+}
+
+export function AppleHelloEffectLanguagesDemo({
+  className,
+  onCycleComplete,
+  resetTrigger,
+}: AppleHelloEffectLanguagesDemoProps) {
   const [index, setIndex] = useState(0)
 
+  useEffect(() => {
+    setIndex(0)
+  }, [resetTrigger])
+
   const handleAnimationEnd = () => {
-    setIndex((prevIndex) => (prevIndex + 1) % 6)
+    if (index === 5) {
+      if (onCycleComplete) {
+        onCycleComplete()
+      } else {
+        setIndex(0)
+      }
+    } else {
+      setIndex((prevIndex) => prevIndex + 1)
+    }
   }
 
   const demos = [
