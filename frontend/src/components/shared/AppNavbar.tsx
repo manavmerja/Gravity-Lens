@@ -19,7 +19,13 @@ import { usePathname } from "next/navigation";
 export default function AppNavbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   if (pathname === "/auth" || pathname === "/connect-aws") return null;
 
   // New requested navbar items

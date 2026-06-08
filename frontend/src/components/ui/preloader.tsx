@@ -9,6 +9,8 @@ interface PreloaderProps {
   isSecondary?: boolean;
 }
 
+let globalPreloaderShown = false;
+
 export function Preloader({ isSecondary = false }: PreloaderProps) {
   const [isComplete, setIsComplete] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -24,14 +26,17 @@ export function Preloader({ isSecondary = false }: PreloaderProps) {
     const isSec = isSecondary || clientHasShown;
     setLocalIsSecondary(isSec);
 
-    // Only show preloader on the home page "/"
-    if (pathname !== "/") {
+    // Do not run the preloader animation again if it has already run once during this session
+    // or if we are not on the root page "/"
+    if (globalPreloaderShown || pathname !== "/") {
       setIsComplete(true);
+      globalPreloaderShown = true;
       document.cookie = "gravity-preloader-shown=true; path=/; max-age=31536000";
       return;
     }
 
-    // Set cookie immediately so subsequent page hits are secondary
+    // Set cookie and global tracker immediately so subsequent navigations do not trigger it
+    globalPreloaderShown = true;
     document.cookie = "gravity-preloader-shown=true; path=/; max-age=31536000";
     setIsComplete(false);
 
