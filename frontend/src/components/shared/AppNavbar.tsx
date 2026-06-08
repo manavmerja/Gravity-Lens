@@ -26,7 +26,7 @@ export default function AppNavbar() {
   }, []);
 
   if (!mounted) return null;
-  if (pathname === "/auth" || pathname === "/connect-aws") return null;
+  if (pathname === "/auth" || pathname === "/connect-aws" || pathname === "/timeline") return null;
 
   // New requested navbar items
   const navItems = [
