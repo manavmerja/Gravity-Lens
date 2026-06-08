@@ -9,6 +9,8 @@ export interface MacbookProProps extends SVGProps<SVGSVGElement> {
   src?: string
   children?: React.ReactNode
   bootlogoText?: string
+  lidOpen?: boolean
+  bootStatus?: "closed" | "bootlogo" | "ready"
 }
 
 export function MacbookPro({
@@ -17,26 +19,64 @@ export function MacbookPro({
   src,
   children,
   bootlogoText = "Gravity-AI",
+  lidOpen,
+  bootStatus,
   ...props
 }: MacbookProProps) {
-  const [bootStatus, setBootStatus] = useState<"closed" | "bootlogo" | "ready">("closed")
+  const [localBootStatus, setLocalBootStatus] = useState<"closed" | "bootlogo" | "ready">("closed")
+  const [localLidOpen, setLocalLidOpen] = useState(false)
+
+  const isControlled = lidOpen !== undefined
+  const activeLidOpen = isControlled ? lidOpen : localLidOpen
+  const activeBootStatus = isControlled ? bootStatus : localBootStatus
 
   useEffect(() => {
-    // Stage 1: Wait for lid opening animation (2.2s), then show boot logo
-    const bootLogoTimer = setTimeout(() => {
-      setBootStatus("bootlogo")
-    }, 2200)
+    if (isControlled) return
 
-    // Stage 2: Show boot logo for 3.2s, then show actual screen content (ready)
-    const readyTimer = setTimeout(() => {
-      setBootStatus("ready")
-    }, 5400)
+    let active = true
+
+    async function runLoop() {
+      while (active) {
+        // Step 1: Open the lid
+        setLocalLidOpen(true)
+        setLocalBootStatus("closed")
+
+        // Wait 2.2s for lid open transition
+        await new Promise((resolve) => setTimeout(resolve, 2200))
+        if (!active) break
+
+        // Step 2: Show boot logo
+        setLocalBootStatus("bootlogo")
+
+        // Show boot logo for 3.2s
+        await new Promise((resolve) => setTimeout(resolve, 3200))
+        if (!active) break
+
+        // Step 3: Show actual screens
+        setLocalBootStatus("ready")
+
+        // Show ready state for 6.0s
+        await new Promise((resolve) => setTimeout(resolve, 6000))
+        if (!active) break
+
+        // Step 4: Close the lid
+        setLocalLidOpen(false)
+
+        // Wait 1.5s for close animation to finish
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        if (!active) break
+
+        // Step 5: Stay closed for 2.5s before restarting
+        await new Promise((resolve) => setTimeout(resolve, 2500))
+      }
+    }
+
+    runLoop()
 
     return () => {
-      clearTimeout(bootLogoTimer)
-      clearTimeout(readyTimer)
+      active = false
     }
-  }, [])
+  }, [isControlled])
 
   return (
     <svg
@@ -50,8 +90,11 @@ export function MacbookPro({
       {/* Animated Screen / Lid Group */}
       <motion.g
         initial={{ scaleY: 0, originY: 0.875 }} // 350px / 400px = 0.875 origin
-        animate={{ scaleY: 1 }}
-        transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ scaleY: activeLidOpen ? 1 : 0 }}
+        transition={{
+          duration: activeLidOpen ? 2.2 : 1.2,
+          ease: activeLidOpen ? [0.16, 1, 0.3, 1] : [0.76, 0, 0.24, 1]
+        }}
       >
         <path
           fill="#a4a5a7"
@@ -84,7 +127,7 @@ export function MacbookPro({
           >
             <div className="relative w-full h-full bg-[#09090D] overflow-hidden select-none flex items-center justify-center">
               <AnimatePresence mode="wait">
-                {bootStatus === "bootlogo" && (
+                {activeBootStatus === "bootlogo" && (
                   <motion.div
                     key="bootlogo"
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -103,7 +146,7 @@ export function MacbookPro({
                     </motion.span>
                   </motion.div>
                 )}
-                {bootStatus === "ready" && (
+                {activeBootStatus === "ready" && (
                   <motion.div
                     key="ready"
                     initial={{ opacity: 0 }}

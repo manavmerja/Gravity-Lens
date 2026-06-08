@@ -56,8 +56,6 @@ export const LiquidButton = React.forwardRef<HTMLButtonElement, LiquidButtonProp
             className
           )}
           style={{
-            // Set custom CSS variables for override if requested
-            "--liquid-color": "linear-gradient(135deg, #FF0080, #7928CA, #0070F3)",
             ...props.style,
           } as React.CSSProperties}
           {...props}
@@ -73,7 +71,7 @@ export const LiquidButton = React.forwardRef<HTMLButtonElement, LiquidButtonProp
                 borderTopRightRadius: "50% 80%",
                 background: variant === "destructive" 
                   ? "linear-gradient(135deg, #ef4444, #b91c1c)" 
-                  : "linear-gradient(135deg, #FF0080, #7928CA, #0070F3, #38bdf8)",
+                  : "var(--liquid-color, linear-gradient(135deg, #FF0080, #7928CA, #0070F3, #38bdf8))",
                 opacity: 0.8,
                 filter: "blur(1px)"
               },
@@ -113,8 +111,9 @@ export const LiquidButton = React.forwardRef<HTMLButtonElement, LiquidButtonProp
               }
             }
           }}
-          className="h-[3px] mt-3 rounded-full blur-[0.5px] bg-gradient-to-r from-[#FF0080] via-[#7928CA] to-[#0070F3] bg-[size:200%_auto]"
+          className="h-[3px] mt-3 rounded-full blur-[0.5px] bg-gradient-to-r bg-[size:200%_auto]"
           style={{
+            background: "var(--liquid-underline, linear-gradient(to right, #FF0080, #7928CA, #0070F3))",
             animation: "aurora-text 4s linear infinite"
           }}
         />

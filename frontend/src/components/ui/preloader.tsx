@@ -3,18 +3,67 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MobiusLoopIcon } from "@/components/ui/mobius-loop-icon";
+import { usePathname } from "next/navigation";
 
-export function Preloader() {
-  const [isComplete, setIsComplete] = useState(false);
+interface PreloaderProps {
+  isSecondary?: boolean;
+}
+
+export function Preloader({ isSecondary = false }: PreloaderProps) {
+  const [isComplete, setIsComplete] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [localIsSecondary, setLocalIsSecondary] = useState(isSecondary);
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Clean, fast preloader sequence of 3.5 seconds
+    setMounted(true);
+    
+    // Check cookie on the client side to override any layout SSR cache
+    const cookieString = document.cookie;
+    const clientHasShown = cookieString.includes("gravity-preloader-shown=true");
+    const isSec = isSecondary || clientHasShown;
+    setLocalIsSecondary(isSec);
+
+    // Only show preloader on the home page "/"
+    if (pathname !== "/") {
+      setIsComplete(true);
+      document.cookie = "gravity-preloader-shown=true; path=/; max-age=31536000";
+      return;
+    }
+
+    // Set cookie immediately so subsequent page hits are secondary
+    document.cookie = "gravity-preloader-shown=true; path=/; max-age=31536000";
+    setIsComplete(false);
+
+    // Shorter duration (4.0s) for subsequent refreshes, 5.0s for first-time layout
+    const duration = isSec ? 4000 : 5000;
+
     const timer = setTimeout(() => {
       setIsComplete(true);
-    }, 5000);
+    }, duration);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname, isSecondary]);
+
+  if (!mounted) {
+    // Render static loader placeholder on SSR to avoid white flash on first load
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#030303] select-none">
+        <div className="relative flex flex-col items-center z-50">
+          <div className="w-32 h-32 mb-6 flex items-center justify-center">
+            <MobiusLoopIcon className="w-24 h-24" />
+          </div>
+          {!isSecondary && (
+            <span className="text-2xl font-extrabold tracking-[0.2em] text-white/40 uppercase text-center px-6">
+              Welcome to GravityLens
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (isComplete) return null;
 
   return (
     <AnimatePresence>
@@ -63,15 +112,17 @@ export function Preloader() {
               <MobiusLoopIcon className="w-24 h-24" />
             </motion.div>
 
-            {/* Brand Title */}
-            <motion.span 
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-2xl font-extrabold tracking-[0.2em] text-white font-sans uppercase bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400 text-center px-6"
-            >
-              Welcome to GravityLens
-            </motion.span>
+            {/* Brand Title (Only shown on first-time load) */}
+            {!localIsSecondary && (
+              <motion.span 
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="text-2xl font-extrabold tracking-[0.2em] text-white font-sans uppercase bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400 text-center px-6"
+              >
+                Welcome to GravityLens
+              </motion.span>
+            )}
           </motion.div>
         </motion.div>
       )}
