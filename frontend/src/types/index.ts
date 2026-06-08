@@ -21,7 +21,7 @@ export interface GraphNode {
   type: string;
   position: { x: number; y: number };
   data: NodeData;
-  parentNode?: string;
+  parentID?: string;
 }
 
 export interface GraphEdge {

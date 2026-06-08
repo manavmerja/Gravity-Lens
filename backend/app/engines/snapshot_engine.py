@@ -54,7 +54,7 @@ class SnapshotEngine:
                 snapshot_id=snapshot.id,
                 node_id=node['id'],
                 node_type=node['type'],
-                parent_node_id=node.get('parentNode'),
+                parent_node_id=node.get('parentID'),
                 resource_arn=node_result['resource_arn'],
                 resource_name=node_result.get('resource_name', ''),
                 service=node['data']['service'],

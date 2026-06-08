@@ -1,0 +1,205 @@
+{
+  "success": true,
+  "message": "Successfully normalized snapshot v7",
+  "account_name": "aman",
+  "snapshot_version": 7,
+  "total_resources": 7,
+  "nodes": [
+    {
+      "id": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-0412ad7c5756ce278",
+      "type": "vpcNode",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "vpc-abc",
+        "service": "vpc",
+        "region": "ap-south-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-0412ad7c5756ce278",
+        "insights": "Custom VPC",
+        "metrics": {
+          "state": "available",
+          "region": "ap-south-1",
+          "cidrBlock": "10.0.0.0/24",
+          "isDefault": false,
+          "securityScan": "Pass"
+        }
+      }
+    },
+    {
+      "id": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-04ee7185711e73b74",
+      "type": "vpcNode",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "vpc-04ee7185711e73b74",
+        "service": "vpc",
+        "region": "ap-south-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-04ee7185711e73b74",
+        "insights": "Default VPC",
+        "metrics": {
+          "state": "available",
+          "region": "ap-south-1",
+          "cidrBlock": "172.31.0.0/16",
+          "isDefault": true,
+          "securityScan": "Warning: Using default VPC"
+        }
+      }
+    },
+    {
+      "id": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0691919506ce273a1",
+      "type": "subnetNode",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "subnet-123",
+        "service": "subnet",
+        "region": "ap-south-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0691919506ce273a1",
+        "insights": "Private Subnet",
+        "metrics": {
+          "type": "Private Subnet",
+          "region": "ap-south-1",
+          "cidrBlock": "10.0.0.0/25",
+          "availableIPs": 122,
+          "securityScan": "Pass",
+          "availabilityZone": "ap-south-1a"
+        }
+      },
+      "parentID": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-0412ad7c5756ce278"
+    },
+    {
+      "id": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0bb3da4b80a0f5371",
+      "type": "subnetNode",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "subnet456",
+        "service": "subnet",
+        "region": "ap-south-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0bb3da4b80a0f5371",
+        "insights": "Private Subnet",
+        "metrics": {
+          "type": "Private Subnet",
+          "region": "ap-south-1",
+          "cidrBlock": "10.0.0.128/25",
+          "availableIPs": 123,
+          "securityScan": "Pass",
+          "availabilityZone": "ap-south-1b"
+        }
+      },
+      "parentID": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-0412ad7c5756ce278"
+    },
+    {
+      "id": "arn:aws:ec2:ap-south-1:129678139333:instance/i-008cf6dee975f625f",
+      "type": "ec2Node",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "ec2-abc",
+        "service": "ec2",
+        "region": "ap-south-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:ec2:ap-south-1:129678139333:instance/i-008cf6dee975f625f",
+        "insights": "Running - t3.micro",
+        "metrics": {
+          "state": "running",
+          "region": "ap-south-1",
+          "publicIp": "None",
+          "privateIp": "10.0.0.56",
+          "instanceType": "t3.micro",
+          "securityScan": "Pass",
+          "securityGroups": [
+            "launch-wizard-2"
+          ],
+          "availabilityZone": "ap-south-1a"
+        }
+      },
+      "parentID": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0691919506ce273a1"
+    },
+    {
+      "id": "arn:aws:lambda:ap-south-1:129678139333:function:samplefunction",
+      "type": "lambdaNode",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "samplefunction",
+        "service": "lambda",
+        "region": "ap-south-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:lambda:ap-south-1:129678139333:function:samplefunction",
+        "insights": "Public Lambda",
+        "metrics": {
+          "inVpc": false,
+          "memory": "128 MB",
+          "region": "ap-south-1",
+          "iamRole": "samplefunction-role-a96fxzaw",
+          "runtime": "python3.11",
+          "timeout": "3s",
+          "securityScan": "Warning: Lambda not in VPC"
+        }
+      }
+    },
+    {
+      "id": "arn:aws:ec2:us-east-1:129678139333:vpc/vpc-09da346f570e1abc7",
+      "type": "vpcNode",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "name": "vpc-09da346f570e1abc7",
+        "service": "vpc",
+        "region": "us-east-1",
+        "account_id": "129678139333",
+        "resource_arn": "arn:aws:ec2:us-east-1:129678139333:vpc/vpc-09da346f570e1abc7",
+        "insights": "Default VPC",
+        "metrics": {
+          "state": "available",
+          "region": "us-east-1",
+          "cidrBlock": "172.31.0.0/16",
+          "isDefault": true,
+          "securityScan": "Warning: Using default VPC"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-756ce278-6ce273a1",
+      "source": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-0412ad7c5756ce278",
+      "target": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0691919506ce273a1",
+      "type": "animatedEdge",
+      "label": "contains"
+    },
+    {
+      "id": "edge-756ce278-0a0f5371",
+      "source": "arn:aws:ec2:ap-south-1:129678139333:vpc/vpc-0412ad7c5756ce278",
+      "target": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0bb3da4b80a0f5371",
+      "type": "animatedEdge",
+      "label": "contains"
+    },
+    {
+      "id": "edge-6ce273a1-975f625f",
+      "source": "arn:aws:ec2:ap-south-1:129678139333:subnet/subnet-0691919506ce273a1",
+      "target": "arn:aws:ec2:ap-south-1:129678139333:instance/i-008cf6dee975f625f",
+      "type": "animatedEdge",
+      "label": "hosts"
+    }
+  ]
+}

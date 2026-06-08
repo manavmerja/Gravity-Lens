@@ -82,7 +82,7 @@
       "resource_arn": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-0a2bbd18668112886",
       "resource_name": "subnet-def",
       "raw_id": "subnet-def",
-      "parentNode": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-04eaf511ea33d8876",
+      "parentID": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-04eaf511ea33d8876",
       "parent_arn": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-04eaf511ea33d8876",
       "vpc_id": "vpc-04eaf511ea33d8876"
     },
@@ -113,7 +113,7 @@
       "resource_arn": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-07e4083c259f4e5ba",
       "resource_name": "subnet-abc",
       "raw_id": "subnet-abc",
-      "parentNode": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-04eaf511ea33d8876",
+      "parentID": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-04eaf511ea33d8876",
       "parent_arn": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-04eaf511ea33d8876",
       "vpc_id": "vpc-04eaf511ea33d8876"
     },
@@ -144,7 +144,7 @@
       "resource_arn": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-0f162aeffdc1172ae",
       "resource_name": "subnet1",
       "raw_id": "subnet1",
-      "parentNode": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-0d96c4c85f792aece",
+      "parentID": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-0d96c4c85f792aece",
       "parent_arn": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-0d96c4c85f792aece",
       "vpc_id": "vpc-0d96c4c85f792aece"
     },
@@ -175,7 +175,7 @@
       "resource_arn": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-0bf6d00db82eccdf7",
       "resource_name": "subnet-2",
       "raw_id": "subnet-2",
-      "parentNode": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-0d96c4c85f792aece",
+      "parentID": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-0d96c4c85f792aece",
       "parent_arn": "arn:aws:ec2:ap-south-1:618642320905:vpc/vpc-0d96c4c85f792aece",
       "vpc_id": "vpc-0d96c4c85f792aece"
     },
@@ -199,7 +199,7 @@
       "resource_arn": "arn:aws:ec2:ap-south-1:618642320905:instance/i-0c2281a133b0d04a6",
       "resource_name": "ec2-abc",
       "raw_id": "ec2-abc",
-      "parentNode": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-0f162aeffdc1172ae",
+      "parentID": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-0f162aeffdc1172ae",
       "parent_arn": "arn:aws:ec2:ap-south-1:618642320905:subnet/subnet-0f162aeffdc1172ae"
     },
     {
@@ -383,7 +383,7 @@
       "resource_arn": "arn:aws:ec2:us-east-1:618642320905:subnet/subnet-0e43806606a0bdbe8",
       "resource_name": "subnet-0e43806606a0bdbe8",
       "raw_id": "subnet-0e43806606a0bdbe8",
-      "parentNode": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
+      "parentID": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "parent_arn": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "vpc_id": "vpc-0c0683d3f1b3ef13b"
     },
@@ -414,7 +414,7 @@
       "resource_arn": "arn:aws:ec2:us-east-1:618642320905:subnet/subnet-0329ab3ddf808cc3c",
       "resource_name": "subnet-0329ab3ddf808cc3c",
       "raw_id": "subnet-0329ab3ddf808cc3c",
-      "parentNode": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
+      "parentID": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "parent_arn": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "vpc_id": "vpc-0c0683d3f1b3ef13b"
     },
@@ -445,7 +445,7 @@
       "resource_arn": "arn:aws:ec2:us-east-1:618642320905:subnet/subnet-0d2e36bb9842b75cf",
       "resource_name": "subnet-0d2e36bb9842b75cf",
       "raw_id": "subnet-0d2e36bb9842b75cf",
-      "parentNode": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
+      "parentID": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "parent_arn": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "vpc_id": "vpc-0c0683d3f1b3ef13b"
     },
@@ -476,7 +476,7 @@
       "resource_arn": "arn:aws:ec2:us-east-1:618642320905:subnet/subnet-010032697b6a8eef0",
       "resource_name": "subnet-010032697b6a8eef0",
       "raw_id": "subnet-010032697b6a8eef0",
-      "parentNode": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
+      "parentID": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "parent_arn": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "vpc_id": "vpc-0c0683d3f1b3ef13b"
     },
@@ -507,7 +507,7 @@
       "resource_arn": "arn:aws:ec2:us-east-1:618642320905:subnet/subnet-012c2e64384bc6c99",
       "resource_name": "subnet-012c2e64384bc6c99",
       "raw_id": "subnet-012c2e64384bc6c99",
-      "parentNode": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
+      "parentID": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "parent_arn": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "vpc_id": "vpc-0c0683d3f1b3ef13b"
     },
@@ -538,7 +538,7 @@
       "resource_arn": "arn:aws:ec2:us-east-1:618642320905:subnet/subnet-0641f7bc19f0b54bd",
       "resource_name": "subnet-0641f7bc19f0b54bd",
       "raw_id": "subnet-0641f7bc19f0b54bd",
-      "parentNode": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
+      "parentID": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "parent_arn": "arn:aws:ec2:us-east-1:618642320905:vpc/vpc-0c0683d3f1b3ef13b",
       "vpc_id": "vpc-0c0683d3f1b3ef13b"
     },

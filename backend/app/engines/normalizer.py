@@ -43,7 +43,7 @@ class NormalizationEngine:
     ) -> dict:
         """
         Build a standard React Flow node.
-        parentNode is only added if it exists — never null.
+        parentID is only added if it exists — never null.
         """
         node = {
             "id": resource_arn,
@@ -61,9 +61,9 @@ class NormalizationEngine:
             }
         }
 
-        # Only add parentNode if it actually has a value
+        # Only add parentID if it actually has a value
         if parent_arn:
-            node["parentNode"] = parent_arn
+            node["parentID"] = parent_arn
 
         return node
 
