@@ -20,7 +20,7 @@ export default function AppNavbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (pathname === "/auth") return null;
+  if (pathname === "/auth" || pathname === "/connect-aws") return null;
 
   // New requested navbar items
   const navItems = [
@@ -35,7 +35,7 @@ export default function AppNavbar() {
       <NavBody>
         <NavbarLogo />
         <NavItems items={navItems} />
-        <NavbarButton href="/settings" variant="primary">
+        <NavbarButton href="/connect-aws" variant="primary">
           Connect AWS
         </NavbarButton>
       </NavBody>
@@ -60,7 +60,7 @@ export default function AppNavbar() {
               {item.name}
             </Link>
           ))}
-          <NavbarButton href="/settings" className="w-full mt-4">
+          <NavbarButton href="/connect-aws" className="w-full mt-4">
             Connect AWS
           </NavbarButton>
         </MobileNavMenu>

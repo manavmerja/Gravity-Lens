@@ -286,6 +286,11 @@ function GitHubIcon(props: React.SVGProps<SVGSVGElement>) {
 function AuthFormTabs() {
   const [activeTab, setActiveTab] = React.useState("signin");
 
+  const handleAuth = () => {
+    localStorage.setItem("gravity_user", "true");
+    window.location.href = "/connect-aws";
+  };
+
   return (
     <motion.div
       animate={{ height: activeTab === "signin" ? 515 : 600 }}
@@ -357,6 +362,7 @@ function AuthFormTabs() {
                 className="w-full bg-white text-black hover:bg-transparent hover:text-white border-transparent"
                 size="sm"
                 style={{ "--liquid-color": "#111111", "--liquid-underline": "transparent" } as React.CSSProperties}
+                onClick={handleAuth}
               >
                 Sign In
               </LiquidButton>
@@ -373,6 +379,7 @@ function AuthFormTabs() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
+                  onClick={handleAuth}
                   className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-gray-300 border border-white/5 rounded-xl bg-neutral-950 hover:bg-white/5 transition-all duration-200 hover:text-white"
                 >
                   <GoogleIcon />
@@ -380,6 +387,7 @@ function AuthFormTabs() {
                 </button>
                 <button
                   type="button"
+                  onClick={handleAuth}
                   className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-gray-300 border border-white/5 rounded-xl bg-neutral-950 hover:bg-white/5 transition-all duration-200 hover:text-white"
                 >
                   <GitHubIcon />
@@ -419,6 +427,7 @@ function AuthFormTabs() {
                 className="w-full bg-white text-black hover:bg-transparent hover:text-white border-transparent"
                 size="sm"
                 style={{ "--liquid-color": "#111111", "--liquid-underline": "transparent" } as React.CSSProperties}
+                onClick={handleAuth}
               >
                 Get Started
               </LiquidButton>
@@ -435,6 +444,7 @@ function AuthFormTabs() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
+                  onClick={handleAuth}
                   className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-gray-300 border border-white/5 rounded-xl bg-neutral-950 hover:bg-white/5 transition-all duration-200 hover:text-white"
                 >
                   <GoogleIcon />
@@ -442,6 +452,7 @@ function AuthFormTabs() {
                 </button>
                 <button
                   type="button"
+                  onClick={handleAuth}
                   className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-gray-300 border border-white/5 rounded-xl bg-neutral-950 hover:bg-white/5 transition-all duration-200 hover:text-white"
                 >
                   <GitHubIcon />
