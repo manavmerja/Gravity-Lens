@@ -53,7 +53,6 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#030303] text-white relative overflow-hidden flex flex-col items-center justify-center">
       <StarsBackground className="absolute inset-0 z-0 bg-[#030303]" />
-      
       {/* Premium organic aurora background glows - Soft Indigo & Violet */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-[10%] -left-[10%] w-[600px] h-[600px] rounded-full bg-[#1e1b4b]/35 blur-[120px] animate-pulse duration-[9000ms]" />

@@ -78,7 +78,7 @@ export default function Home() {
           <FloatingElements />
           {/* Subtle background glow grid */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none z-0" />
-          
+
           {/* Top/Center Indigo Glow */}
           <div className="parallax-glow-indigo absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
@@ -89,9 +89,9 @@ export default function Home() {
           <div className="relative z-10 flex flex-col items-center text-center px-6">
             {/* Animated Badge */}
             <div className="mb-8">
-              <AnimatedBadge 
-                text="Introducing GravityLens" 
-                color="#6366F1" 
+              <AnimatedBadge
+                text="Introducing GravityLens"
+                color="#6366F1"
                 href="/dashboard"
               />
             </div>
@@ -111,9 +111,9 @@ export default function Home() {
 
             {/* Typewriter Subtitle */}
             <div className="mt-4">
-              <TypewriterEffectSmooth 
+              <TypewriterEffectSmooth
                 key={typewriterKey}
-                words={taglineWords} 
+                words={taglineWords}
                 className="text-xs sm:text-sm md:text-base font-normal my-0"
                 cursorClassName="bg-[#6366F1] h-4 sm:h-5 lg:h-6"
               />
@@ -126,7 +126,7 @@ export default function Home() {
               </LiquidButton>
             </div>
           </div>
-          
+
           {/* Smooth transition gradient overlay to fade out stars and background glow */}
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none z-10" />
         </StarsBackground>
@@ -141,7 +141,7 @@ export default function Home() {
           height={24}
         />
         <BentoGrid />
-        
+
         {/* Dashboard Preview Section containing multiple visual charts */}
         <DashboardPreview />
 

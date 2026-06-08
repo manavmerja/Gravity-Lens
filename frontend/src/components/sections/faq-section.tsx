@@ -47,7 +47,7 @@ export function FAQSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-          
+
           {/* Left Column: Title & CTA */}
           <div className="lg:col-span-5 space-y-6 pt-2">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.15] tracking-tight">
@@ -66,8 +66,8 @@ export function FAQSection() {
             {FAQ_ITEMS.map((item, index) => {
               const isOpen = openIndex === index;
               return (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="border border-white/10 rounded-xl bg-[#09090C]/80 hover:bg-[#121217]/80 transition-all duration-300 overflow-hidden"
                 >
                   <button
