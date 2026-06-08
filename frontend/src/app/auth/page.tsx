@@ -26,6 +26,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LiquidButton } from "@/components/ui/liquid-button";
 function MoveLeftArrow() {
   return (
     <svg
@@ -144,7 +145,7 @@ export default function AuthPage() {
     <main className="min-h-screen bg-[#030303] text-white flex flex-col lg:flex-row relative">
 
       {/* Left side: Animated presentation area */}
-      <div className="w-full lg:w-[45%] bg-[#030303] border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col justify-between p-8 lg:p-12 relative overflow-hidden shrink-0">
+      <div className="w-full lg:w-[45%] bg-[#030303] flex flex-col justify-between p-8 lg:p-12 relative overflow-hidden shrink-0">
 
         {/* Brand Link & Back Button */}
         <div className="flex items-center justify-between w-full z-10">
@@ -287,7 +288,7 @@ function AuthFormTabs() {
 
   return (
     <motion.div
-      animate={{ height: activeTab === "signin" ? 505 : 585 }}
+      animate={{ height: activeTab === "signin" ? 515 : 600 }}
       transition={{ type: "spring", stiffness: 220, damping: 26 }}
       className="border border-white/5 bg-[#09090D] shadow-2xl overflow-hidden rounded-2xl relative w-full flex flex-col p-6 gap-6"
     >
@@ -352,9 +353,13 @@ function AuthFormTabs() {
             </div>
             
             <div className="flex flex-col gap-4 pt-2">
-              <Button className="w-full bg-white text-black hover:bg-neutral-200">
+              <LiquidButton
+                className="w-full bg-white text-black hover:bg-transparent hover:text-white border-transparent"
+                size="sm"
+                style={{ "--liquid-color": "#111111", "--liquid-underline": "transparent" } as React.CSSProperties}
+              >
                 Sign In
-              </Button>
+              </LiquidButton>
 
               <div className="relative flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center">
@@ -410,9 +415,13 @@ function AuthFormTabs() {
             </div>
             
             <div className="flex flex-col gap-4 pt-2">
-              <Button className="w-full bg-white text-black hover:bg-neutral-200">
+              <LiquidButton
+                className="w-full bg-white text-black hover:bg-transparent hover:text-white border-transparent"
+                size="sm"
+                style={{ "--liquid-color": "#111111", "--liquid-underline": "transparent" } as React.CSSProperties}
+              >
                 Get Started
-              </Button>
+              </LiquidButton>
 
               <div className="relative flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center">
