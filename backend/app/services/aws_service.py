@@ -20,10 +20,12 @@ class AWSService:
             sts_client = boto3.client('sts')  # Security Token Service
 
             # Step 2: Assume the role the user provided
-            assumed_role = sts_client.assume_role(
-                RoleArn=role_arn,
-                RoleSessionName="GravityLensVerification"
-            )
+            assume_args = {
+                "RoleArn": role_arn,
+                "RoleSessionName": "GravityLensVerification"
+            }
+
+            assumed_role = sts_client.assume_role(**assume_args)
 
             # Step 3: Use temporary credentials to verify identity
             credentials = assumed_role['Credentials']
@@ -108,10 +110,12 @@ class AWSService:
         """
         try:
             sts_client = boto3.client('sts')
-            assumed_role = sts_client.assume_role(
-                RoleArn=role_arn,
-                RoleSessionName="GravityLensScan"
-            )
+            assume_args = {
+                "RoleArn": role_arn,
+                "RoleSessionName": "GravityLensScan"
+            }
+
+            assumed_role = sts_client.assume_role(**assume_args)
             return assumed_role['Credentials']
         except Exception as e:
             logger.error(f"Failed to get credentials: {str(e)}")

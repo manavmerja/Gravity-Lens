@@ -57,6 +57,7 @@ class AwsAccount(Base):
     account_id     = Column(String(12), nullable=False)   # AWS 12 digit account ID
     account_name   = Column(String(255))
     role_arn       = Column(Text)                          # IAM Role ARN
+    external_id    = Column(String(255), nullable=True)    # ExternalId used for cross-account assume role
     status         = Column(String(50), default="active")
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
 
