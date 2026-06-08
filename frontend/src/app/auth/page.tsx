@@ -30,22 +30,22 @@ import { Button } from "@/components/ui/button";
 export default function AuthPage() {
   return (
     <main className="min-h-screen bg-[#030303] text-white flex flex-col lg:flex-row relative">
-      
+
       {/* Left side: Animated presentation area */}
       <div className="w-full lg:w-[45%] bg-[#030303] border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col justify-between p-8 lg:p-12 relative overflow-hidden shrink-0">
-        
+
         {/* Brand Link & Back Button */}
         <div className="flex items-center justify-between w-full z-10">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center gap-3 text-white font-bold text-xl tracking-wider hover:opacity-90 transition-opacity"
           >
             <div className="relative h-9 w-9 shrink-0">
-              <Image 
-                src="/logo.png" 
-                alt="GravityLens Logo" 
-                fill 
-                className="object-contain invert" 
+              <Image
+                src="/logo.png"
+                alt="GravityLens Logo"
+                fill
+                className="object-contain invert"
                 sizes="36px"
                 priority
               />
@@ -85,8 +85,29 @@ export default function AuthPage() {
       </div>
 
       {/* Right side: Authentication forms */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-12 bg-[#030303]">
-        <div className="w-full max-w-md relative">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-12 bg-[#030303] relative overflow-hidden">
+        {/* Slowly-shifting organic Aurora blobs */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          {/* Deep Blue Upper Right Blob */}
+          <div className="absolute -top-[15%] -right-[15%] w-[500px] h-[500px] rounded-full bg-[#0025cc]/35 blur-[90px] animate-aurora-1" />
+          
+          {/* Purple Blob */}
+          <div className="absolute -bottom-[20%] -left-[20%] w-[500px] h-[500px] rounded-full bg-purple-600/10 blur-[130px] animate-aurora-2" />
+          
+          {/* Teal Blob */}
+          <div className="absolute top-[20%] left-[10%] w-[450px] h-[450px] rounded-full bg-teal-500/5 blur-[120px] animate-aurora-3" />
+          
+          {/* Pink/Magenta Blob */}
+          <div className="absolute bottom-[10%] right-[10%] w-[400px] h-[400px] rounded-full bg-pink-500/5 blur-[120px] animate-aurora-4" />
+          
+          {/* Subtle grid pattern overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
+          
+          {/* Symmetrical Bottom Left Deep Teal Blob */}
+          <div className="absolute -bottom-[15%] -left-[15%] w-[500px] h-[500px] rounded-full bg-[#00687a]/45 blur-[90px] animate-aurora-2" />
+        </div>
+
+        <div className="w-full max-w-md relative z-10">
           <AuthFormTabs />
         </div>
       </div>
@@ -98,13 +119,16 @@ export default function AuthPage() {
 function AuthFormTabs() {
   const [activeTab, setActiveTab] = React.useState("signin");
 
-  // Approximate card height to transition smoothly
-  const containerHeight = activeTab === "signin" ? "h-[360px]" : "h-[440px]";
-
   return (
-    <div className="w-full flex flex-col gap-6">
-      {/* Tabs list styled selector */}
-      <div className="grid grid-cols-2 relative h-10 p-1 bg-neutral-950 border border-white/5 rounded-xl">
+    <motion.div
+      animate={{ height: activeTab === "signin" ? 425 : 505 }}
+      transition={{ type: "spring", stiffness: 220, damping: 26 }}
+      className="border border-white/5 bg-[#09090D] shadow-2xl overflow-hidden rounded-2xl relative w-full flex flex-col p-6 gap-6"
+    >
+      <div className="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-indigo-500/35 to-transparent" />
+      
+      {/* Tabs list styled selector - Inside the box! */}
+      <div className="grid grid-cols-2 relative h-10 p-1 bg-neutral-950 border border-white/5 rounded-xl shrink-0 z-20">
         <button
           onClick={() => setActiveTab("signin")}
           className={cn(
@@ -127,15 +151,8 @@ function AuthFormTabs() {
         </button>
       </div>
 
-      {/* Sliding and Auto-Height Animated Container */}
-      <motion.div
-        animate={{ height: activeTab === "signin" ? 360 : 440 }}
-        transition={{ type: "spring", stiffness: 220, damping: 26 }}
-        className="border border-white/5 bg-[#09090D] shadow-2xl overflow-hidden rounded-2xl relative w-full"
-      >
-        <div className="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-indigo-500/35 to-transparent" />
-        
-        {/* Horizontal Slide Track */}
+      {/* Horizontal Slide Track */}
+      <div className="relative flex-1 overflow-hidden w-full">
         <div
           className="flex h-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] w-[200%]"
           style={{
@@ -143,7 +160,7 @@ function AuthFormTabs() {
           }}
         >
           {/* Sign In form container */}
-          <div className="w-1/2 p-6 flex flex-col gap-4 h-full justify-between shrink-0">
+          <div className="w-1/2 flex flex-col gap-4 h-full justify-between shrink-0 pr-4">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col space-y-1">
                 <h3 className="text-xl font-bold text-white">Welcome back</h3>
@@ -175,7 +192,7 @@ function AuthFormTabs() {
           </div>
 
           {/* Sign Up form container */}
-          <div className="w-1/2 p-6 flex flex-col gap-4 h-full justify-between shrink-0">
+          <div className="w-1/2 flex flex-col gap-4 h-full justify-between shrink-0 pl-4">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col space-y-1">
                 <h3 className="text-xl font-bold text-white">Create your account</h3>
@@ -205,7 +222,7 @@ function AuthFormTabs() {
             </div>
           </div>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 }
