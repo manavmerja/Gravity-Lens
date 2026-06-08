@@ -28,6 +28,8 @@ export function DotPattern({
 }: DotPatternProps) {
   const id = useId()
 
+  const { ref, ...svgProps } = props as any;
+
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
       {/* Soft Ambient glowing blob behind pattern to give the "glow" illusion */}
@@ -41,7 +43,7 @@ export function DotPattern({
           "absolute inset-0 h-full w-full text-indigo-500/10",
           className
         )}
-        {...props}
+        {...svgProps}
       >
         <defs>
           <pattern

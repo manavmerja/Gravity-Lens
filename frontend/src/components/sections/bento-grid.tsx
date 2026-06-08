@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 import { 
   IconHistory, 
   IconBinaryTree, 
@@ -406,11 +411,39 @@ function LiveComplianceFeed() {
 
 export function BentoGrid() {
   const [showDriftFix, setShowDriftFix] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Fade/Slide up the grid section header
+    gsap.from(".bento-header", {
+      opacity: 0,
+      y: 30,
+      duration: 0.8,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 85%",
+      }
+    });
+
+    // Stagger fade/slide up the individual cards
+    gsap.from(".bento-card", {
+      opacity: 0,
+      y: 40,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 70%",
+      }
+    });
+  }, { scope: containerRef });
 
   return (
-    <section className="py-24 px-6 max-w-7xl mx-auto relative z-20">
+    <section ref={containerRef} className="py-24 px-6 max-w-7xl mx-auto relative z-20">
       {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
+      <div className="bento-header text-center max-w-3xl mx-auto mb-16">
         <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 text-white">
           Architected for <span className="aurora-text">Total Intelligence</span>
         </h2>
@@ -425,7 +458,7 @@ export function BentoGrid() {
         {/* Card 1: Time-Travel Timeline (Spans 2 columns) */}
         <motion.div 
           whileHover={{ y: -4 }}
-          className="md:col-span-2 p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-indigo-500/20 transition-colors duration-300 group relative overflow-hidden"
+          className="bento-card md:col-span-2 p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-indigo-500/20 transition-colors duration-300 group relative overflow-hidden"
         >
           <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-[100px]" />
           
@@ -453,7 +486,7 @@ export function BentoGrid() {
         {/* Card 2: Security Audit checks (Spans 1 column) */}
         <motion.div 
           whileHover={{ y: -4 }}
-          className="p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-pink-500/20 transition-colors duration-300 group relative overflow-hidden"
+          className="bento-card p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-pink-500/20 transition-colors duration-300 group relative overflow-hidden"
         >
           <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-pink-500/5 rounded-full blur-[80px]" />
           
@@ -480,7 +513,7 @@ export function BentoGrid() {
         {/* Card 3: Auto-Discovery Topology (Spans 1 column) */}
         <motion.div 
           whileHover={{ y: -4 }}
-          className="p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-sky-500/20 transition-colors duration-300 group relative overflow-hidden"
+          className="bento-card p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-sky-500/20 transition-colors duration-300 group relative overflow-hidden"
         >
           <div className="absolute -left-20 -bottom-20 w-60 h-60 bg-sky-500/5 rounded-full blur-[80px]" />
           
@@ -507,7 +540,7 @@ export function BentoGrid() {
         {/* Card 4: Drift Detection Code Diff (Spans 2 columns) */}
         <motion.div 
           whileHover={{ y: -4 }}
-          className="md:col-span-2 p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-indigo-500/20 transition-colors duration-300 group relative overflow-hidden"
+          className="bento-card md:col-span-2 p-8 rounded-3xl bg-[#121218]/80 border border-white/5 backdrop-blur-md flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-indigo-500/20 transition-colors duration-300 group relative overflow-hidden"
         >
           <div className="absolute -left-20 -top-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-[100px]" />
           

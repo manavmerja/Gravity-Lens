@@ -78,6 +78,8 @@ export function MacbookPro({
     }
   }, [isControlled])
 
+  const { ref, ...svgProps } = props as any;
+
   return (
     <svg
       width={width}
@@ -85,7 +87,7 @@ export function MacbookPro({
       viewBox={`0 0 ${width} ${height}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      {...props}
+      {...svgProps}
     >
       {/* Animated Screen / Lid Group */}
       <motion.g

@@ -2,6 +2,10 @@
 
 import React, { useEffect } from "react";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -15,30 +19,29 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       touchMultiplier: 1.5,
     });
 
-    // Add scroll class to body to disable pointer events on heavy elements (e.g. iframes) during scrolling
-    const onScroll = () => {
-      document.body.classList.add("is-scrolling");
+    // Sync ScrollTrigger updates with Lenis scroll movements
+    lenis.on("scroll", () => {
+      ScrollTrigger.update();
       
-      // Debounce removal of scrolling class
+      // Add scroll class to body to disable pointer events on heavy elements (e.g. iframes) during scrolling
+      document.body.classList.add("is-scrolling");
       clearTimeout((window as any).scrollTimeout);
       (window as any).scrollTimeout = setTimeout(() => {
         document.body.classList.remove("is-scrolling");
       }, 150);
+    });
+
+    // Use GSAP ticker to drive Lenis for perfect 60fps/120fps frame synchronization
+    const updateScroll = (time: number) => {
+      lenis.raf(time * 1000);
     };
-
-    lenis.on("scroll", onScroll);
-
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
+    
+    gsap.ticker.add(updateScroll);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
       lenis.destroy();
-      cancelAnimationFrame(rafId);
+      gsap.ticker.remove(updateScroll);
     };
   }, []);
 
