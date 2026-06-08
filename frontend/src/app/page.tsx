@@ -1,7 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatedBadge } from "@/components/ui/animated-badge";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
 import { StarsBackground } from "@/components/ui/stars-background";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 import { FloatingElements } from "@/components/ui/floating-elements";
@@ -18,12 +23,40 @@ import { Footer } from "@/components/sections/footer";
 export default function Home() {
   const [typewriterKey, setTypewriterKey] = useState(0);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setTypewriterKey((prev) => prev + 1);
     }, 20000);
     return () => clearInterval(interval);
   }, []);
+
+  useGSAP(() => {
+    // Parallax shift for Top Indigo Glow
+    gsap.to(".parallax-glow-indigo", {
+      y: 180,
+      ease: "none",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+      }
+    });
+
+    // Parallax shift for Bottom Purple Glow
+    gsap.to(".parallax-glow-purple", {
+      y: -120,
+      ease: "none",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+      }
+    });
+  }, { scope: containerRef });
 
   const taglineWords = [
     { text: "Map," },
@@ -38,7 +71,7 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#0A0A0F] text-white relative overflow-hidden">
+    <main ref={containerRef} className="min-h-screen bg-[#0A0A0F] text-white relative overflow-hidden">
       {/* Hero Home Screen Section (with Stars & Glows) */}
       <div className="relative min-h-screen w-full">
         <StarsBackground className="min-h-screen flex flex-col items-center justify-start pt-36 relative w-full bg-[#0A0A0F]">
@@ -47,10 +80,10 @@ export default function Home() {
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none z-0" />
           
           {/* Top/Center Indigo Glow */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
+          <div className="parallax-glow-indigo absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
           {/* Bottom Purple Glow Aura */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80vw] h-[250px] bg-purple-600/15 rounded-t-full blur-[100px] pointer-events-none z-0" />
+          <div className="parallax-glow-purple absolute bottom-0 left-1/2 -translate-x-1/2 w-[80vw] h-[250px] bg-purple-600/15 rounded-t-full blur-[100px] pointer-events-none z-0" />
 
           {/* Hero Content Container */}
           <div className="relative z-10 flex flex-col items-center text-center px-6">
