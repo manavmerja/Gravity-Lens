@@ -12,11 +12,18 @@ interface PreloaderProps {
 export function Preloader({ isSecondary = false }: PreloaderProps) {
   const [isComplete, setIsComplete] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [localIsSecondary, setLocalIsSecondary] = useState(isSecondary);
   const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
     
+    // Check cookie on the client side to override any layout SSR cache
+    const cookieString = document.cookie;
+    const clientHasShown = cookieString.includes("gravity-preloader-shown=true");
+    const isSec = isSecondary || clientHasShown;
+    setLocalIsSecondary(isSec);
+
     // Only show preloader on the home page "/"
     if (pathname !== "/") {
       setIsComplete(true);
@@ -28,8 +35,8 @@ export function Preloader({ isSecondary = false }: PreloaderProps) {
     document.cookie = "gravity-preloader-shown=true; path=/; max-age=31536000";
     setIsComplete(false);
 
-    // Shorter duration (2.0s) for subsequent refreshes, 5.0s for first-time layout
-    const duration = isSecondary ? 4000 : 5000;
+    // Shorter duration (4.0s) for subsequent refreshes, 5.0s for first-time layout
+    const duration = isSec ? 4000 : 5000;
 
     const timer = setTimeout(() => {
       setIsComplete(true);
@@ -106,7 +113,7 @@ export function Preloader({ isSecondary = false }: PreloaderProps) {
             </motion.div>
 
             {/* Brand Title (Only shown on first-time load) */}
-            {!isSecondary && (
+            {!localIsSecondary && (
               <motion.span 
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -11,6 +11,8 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "GravityLens",
 };
