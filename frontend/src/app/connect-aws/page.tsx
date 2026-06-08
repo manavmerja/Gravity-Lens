@@ -7,6 +7,7 @@ import { motion, type Variants } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LiquidButton } from "@/components/ui/liquid-button";
+import { Backlight } from "@/components/ui/backlight";
 
 function MoveLeftArrow() {
   return (
@@ -85,21 +86,18 @@ export default function ConnectAWSPage() {
           </Link>
         </div>
 
-        {/* Video component placeholder (to be replaced by their video element next time) */}
-        <div className="my-auto py-8 flex flex-col items-center justify-center z-10 w-full">
-          <div className="w-full max-w-lg aspect-video rounded-2xl border border-white/5 bg-[#09090D] shadow-2xl relative overflow-hidden flex flex-col items-center justify-center gap-3 group/video">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.03)_0%,transparent_70%)] pointer-events-none" />
-            
-            <div className="h-14 w-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover/video:bg-white/10 transition-all duration-300">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" className="text-gray-300 ml-1">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-            
-            <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
-              How to Connect AWS Video Tutorial
-            </span>
-          </div>
+        {/* Video component with premium backlight glow */}
+        <div className="my-auto py-8 flex flex-col items-center justify-center z-10 w-full px-4">
+          <Backlight blur={40} className="w-full max-w-lg">
+            <iframe
+              className="w-full aspect-video rounded-2xl border border-white/10 bg-[#09090D] shadow-2xl"
+              src="https://www.youtube.com/embed/9CJLtzzUphU"
+              title="How to Connect AWS Video Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </Backlight>
         </div>
 
         {/* Footer text */}
