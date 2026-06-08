@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LiquidButton } from "@/components/ui/liquid-button";
@@ -142,9 +142,22 @@ export default function ConnectAWSPage() {
 
       {/* Right side: Video component with backlight */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-12 bg-[#030303] relative overflow-hidden z-10">
+        {/* Subtle grid pattern overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35 pointer-events-none z-0" />
 
         {/* Video component with premium backlight glow */}
         <div className="my-auto py-8 flex flex-col items-center justify-center z-10 w-full px-4">
+          
+          {/* Header instructing the user */}
+          <div className="text-center max-w-lg mb-6 z-10 flex flex-col items-center justify-center gap-1.5 select-none">
+            <span className="text-[10px] font-bold tracking-[0.25em] text-indigo-400 uppercase">
+              Step-by-Step Guide
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
+              Watch this video tutorial before filling up the form
+            </h2>
+          </div>
+
           <Backlight blur={40} className="w-full max-w-lg">
             <iframe
               className="w-full aspect-video rounded-2xl border border-white/10 bg-[#09090D] shadow-2xl"
@@ -155,6 +168,27 @@ export default function ConnectAWSPage() {
               allowFullScreen
             />
           </Backlight>
+
+          {/* Quick Steps Guide */}
+          <div className="w-full max-w-lg mt-8 border border-white/5 bg-[#09090D]/60 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-4 shadow-xl relative overflow-hidden group">
+            <div className="absolute -top-px left-5 right-5 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400">Quick Setup</h4>
+            <ul className="flex flex-col gap-3 text-xs text-gray-400">
+              <li className="flex items-start gap-3">
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 font-semibold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">1</span>
+                <span>Select <strong>AWS Account</strong> trust entity in your IAM Console.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 font-semibold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">2</span>
+                <span>Attach <strong>ReadOnlyAccess</strong> to grant discovery permissions.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 font-semibold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">3</span>
+                <span>Copy <strong>Role ARN</strong> and paste into the configuration form.</span>
+              </li>
+            </ul>
+          </div>
+
         </div>
       </div>
     </main>
