@@ -11,7 +11,7 @@ import {
   IconBrandYoutube 
 } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
-import StatusIndicator from "@/components/8starlabs-ui/status-indicator";
+import StatusIndicator from "@/components/ui/status-indicator";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 
 const linksPro = {
