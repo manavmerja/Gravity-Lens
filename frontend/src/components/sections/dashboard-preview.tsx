@@ -23,7 +23,7 @@ import { RingChart } from "@/components/charts/ring-chart";
 import { Ring } from "@/components/charts/ring";
 import { RingCenter } from "@/components/charts/ring-center";
 
-import StatusIndicator from "@/components/8starlabs-ui/status-indicator";
+import StatusIndicator from "@/components/ui/status-indicator";
 
 // Composed chart data: base (projected - Lime), warning (minor drift - Amber), breach (uncontrolled drift - Red)
 const mockComposedData = [

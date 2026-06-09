@@ -9,7 +9,7 @@ import {
   IconBrandCloudflare 
 } from "@tabler/icons-react";
 
-import StatusIndicator from "@/components/8starlabs-ui/status-indicator";
+import StatusIndicator from "@/components/ui/status-indicator";
 
 export function FloatingElements() {
   return (
