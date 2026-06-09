@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { useRef } from "react";
 import { AnimatedBeam } from "@/components/ui/animated-beam";
 import { DotPattern } from "@/components/ui/dot-pattern";
-import StatusIndicator from "@/components/8starlabs-ui/status-indicator";
+import StatusIndicator from "@/components/ui/status-indicator";
 
 import { 
   IconUser,
