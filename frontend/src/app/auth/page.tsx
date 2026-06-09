@@ -3,8 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AppleHelloEffectLanguagesDemo } from "@/components/apple-hello-effect/apple-hello-effect-languages-demo";
-import { MacbookPro } from "@/components/eldoraui/macbook-pro";
+import { AppleHelloEffectLanguagesDemo } from "@/components/ui/apple-hello-effect/apple-hello-effect-languages-demo";
+import { MacbookPro } from "@/components/ui/macbook-pro";
 import { cn } from "@/lib/utils";
 import { motion, type Variants } from "framer-motion";
 import {
@@ -14,7 +14,7 @@ import {
   TabsContents,
   TabsContent,
   AnimatedTabHighlight,
-} from "@/components/animate-ui/components/radix/tabs";
+} from "@/components/ui/tabs";
 import {
   Card,
   CardHeader,
