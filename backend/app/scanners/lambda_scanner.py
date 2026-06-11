@@ -36,6 +36,19 @@ class LambdaScanner:
             for page in paginator.paginate():
                 for function in page['Functions']:
                     try:
+                        # Fetch Event Source Mappings (triggers)
+                        esm_list = []
+                        try:
+                            esm_res = lambda_client.list_event_source_mappings(FunctionName=function['FunctionName'])
+                            for mapping in esm_res.get('EventSourceMappings', []):
+                                esm_list.append({
+                                    "eventSourceArn": mapping.get('EventSourceArn'),
+                                    "state": mapping.get('State')
+                                })
+                        except Exception as esm_err:
+                            logger.warning(f"Could not list event source mappings for {function['FunctionName']}: {esm_err}")
+                        function['EventSourceMappings'] = esm_list
+
                         # Check if Lambda is in VPC
                         vpc_config = function.get('VpcConfig', {})
                         subnet_ids = vpc_config.get('SubnetIds', [])
@@ -53,15 +66,9 @@ class LambdaScanner:
                         )
                         nodes.append(result)
 
-                        # Edge: Subnet → Lambda
-                        if subnet_arn:
-                            edge = normalizer.build_edge(
-                                source_arn=subnet_arn,
-                                target_arn=result['resource_arn'],
-                                label="hosts"
-                            )
-                            edges.append(edge)
-
+                        # NOTE: We do NOT create Subnet→Lambda edges here.
+                        # VPC/Subnet hierarchy is handled via parentId (React Flow nesting).
+                        # Only real communication edges are created by the RelationshipEngine.
                         logger.info(f"Lambda scanned: {function['FunctionName']}")
 
                     except Exception as e:

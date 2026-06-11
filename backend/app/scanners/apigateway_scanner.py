@@ -30,6 +30,28 @@ class APIGatewayScanner:
             response = apigw.get_rest_apis()
             for api in response.get('items', []):
                 try:
+                    integrations = []
+                    try:
+                        resources = apigw.get_resources(restApiId=api['id'], limit=500)
+                        for item in resources.get('items', []):
+                            methods = item.get('resourceMethods', {})
+                            for method in methods.keys():
+                                try:
+                                    integration = apigw.get_integration(
+                                        restApiId=api['id'],
+                                        resourceId=item['id'],
+                                        httpMethod=method
+                                    )
+                                    uri = integration.get('uri')
+                                    if uri:
+                                        integrations.append(uri)
+                                except Exception:
+                                    pass
+                    except Exception as api_err:
+                        logger.warning(f"Error fetching resources/integrations for API Gateway {api['id']}: {api_err}")
+
+                    api['Integrations'] = integrations
+
                     result = normalizer.normalize_apigateway(
                         api=api,
                         region=region,

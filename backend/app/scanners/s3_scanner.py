@@ -55,12 +55,28 @@ class S3Scanner:
                     except Exception:
                         versioning = 'Disabled'
 
+                    # Get bucket notification configuration
+                    notification_config = {}
+                    try:
+                        notif = s3.get_bucket_notification_configuration(Bucket=bucket_name)
+                        notification_config = {
+                            "LambdaFunctionConfigurations": [
+                                {
+                                    "LambdaFunctionArn": cfg.get('LambdaFunctionArn'),
+                                    "Events": cfg.get('Events')
+                                } for cfg in notif.get('LambdaFunctionConfigurations', [])
+                            ]
+                        }
+                    except Exception as notif_err:
+                        logger.warning(f"Could not list notification configuration for {bucket_name}: {notif_err}")
+
                     result = normalizer.normalize_s3(
                         bucket=bucket,
                         account_id=account_id,
                         location=region,
                         public_access=public_access,
-                        versioning=versioning
+                        versioning=versioning,
+                        notification_config=notification_config
                     )
                     nodes.append(result)
                     logger.info(f"S3 scanned: {bucket_name}")

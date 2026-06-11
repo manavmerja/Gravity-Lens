@@ -32,6 +32,47 @@ class VPCScanner:
                 aws_session_token=credentials['SessionToken']
             )
 
+            # Scan VPC Endpoints
+            vpc_endpoints = {}
+            try:
+                endpoints_res = ec2.describe_vpc_endpoints()
+                for endpoint in endpoints_res.get('VpcEndpoints', []):
+                    vid = endpoint.get('VpcId')
+                    if vid not in vpc_endpoints:
+                        vpc_endpoints[vid] = []
+                    vpc_endpoints[vid].append({
+                        "serviceName": endpoint.get('ServiceName'),
+                        "vpcEndpointType": endpoint.get('VpcEndpointType')
+                    })
+            except Exception as e:
+                logger.warning(f"Failed to scan VPC endpoints: {e}")
+
+            # Scan Security Groups and rules
+            vpc_security_groups = {}
+            try:
+                sg_res = ec2.describe_security_groups()
+                for sg in sg_res.get('SecurityGroups', []):
+                    vid = sg.get('VpcId')
+                    if vid not in vpc_security_groups:
+                        vpc_security_groups[vid] = []
+                    vpc_security_groups[vid].append({
+                        "groupId": sg.get('GroupId'),
+                        "groupName": sg.get('GroupName'),
+                        "ipPermissions": [
+                            {
+                                "fromPort": rule.get('FromPort'),
+                                "toPort": rule.get('ToPort'),
+                                "ipProtocol": rule.get('IpProtocol'),
+                                "userIdGroupPairs": [
+                                    {"groupId": pair.get('GroupId')}
+                                    for pair in rule.get('UserIdGroupPairs', [])
+                                ]
+                            } for rule in sg.get('IpPermissions', [])
+                        ]
+                    })
+            except Exception as e:
+                logger.warning(f"Failed to scan security groups: {e}")
+
             # ── Scan VPCs ──────────────────────────
             vpc_map = {}  # vpc_id → vpc_arn
 
@@ -39,8 +80,14 @@ class VPCScanner:
             for page in paginator.paginate():
                 for vpc in page['Vpcs']:
                     try:
+                        endpoints = vpc_endpoints.get(vpc['VpcId'], [])
+                        security_groups = vpc_security_groups.get(vpc['VpcId'], [])
                         result = normalizer.normalize_vpc(
-                            vpc, region, account_id
+                            vpc=vpc,
+                            region=region,
+                            account_id=account_id,
+                            endpoints=endpoints,
+                            security_groups=security_groups
                         )
                         nodes.append(result)
                         vpc_map[result['raw_id']] = result['resource_arn']
