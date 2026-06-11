@@ -172,6 +172,8 @@ class Relationship(Base):
     target_arn     = Column(Text, nullable=False)
     edge_type      = Column(String(50), default="animatedEdge")
     label          = Column(String(100))
+    confidence     = Column(Integer, nullable=True)
+    evidence       = Column(JSONB, nullable=True)
 
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
 

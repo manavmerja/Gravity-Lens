@@ -14,7 +14,18 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
 Base.metadata.create_all(bind=engine)
+
+# Ensure confidence and evidence columns exist in PostgreSQL if table is already created
+from sqlalchemy import text
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE relationships ADD COLUMN IF NOT EXISTS confidence INTEGER;"))
+        conn.execute(text("ALTER TABLE relationships ADD COLUMN IF NOT EXISTS evidence JSONB;"))
+    logger.info("Database alter statements executed successfully (if needed).")
+except Exception as e:
+    logger.warning(f"Database alter statements failed or not applicable (e.g. SQLite/existing): {e}")
 
 app = FastAPI(
     title="GravityLens API",

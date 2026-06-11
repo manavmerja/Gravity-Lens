@@ -64,6 +64,7 @@ class NormalizationEngine:
         # Only add parentID if it actually has a value
         if parent_arn:
             node["parentID"] = parent_arn
+            node["parentId"] = parent_arn
 
         return node
 
@@ -94,7 +95,7 @@ class NormalizationEngine:
     # VPC NORMALIZER
     # ─────────────────────────────────────────
 
-    def normalize_vpc(self, vpc: dict, region: str, account_id: str) -> dict:
+    def normalize_vpc(self, vpc: dict, region: str, account_id: str, endpoints: list = None, security_groups: list = None) -> dict:
         """
         Convert raw AWS VPC response into standard node format.
         """
@@ -112,7 +113,9 @@ class NormalizationEngine:
             "state": vpc.get('State', 'N/A'),
             "isDefault": is_default,
             "region": region,
-            "securityScan": self._scan_vpc(vpc)
+            "securityScan": self._scan_vpc(vpc),
+            "endpoints": endpoints or [],
+            "securityGroups": security_groups or []
         }
 
         insights = "Default VPC" if is_default else "Custom VPC"
@@ -234,6 +237,12 @@ class NormalizationEngine:
             sg.get('GroupName', '') 
             for sg in instance.get('SecurityGroups', [])
         ]
+        security_group_ids = [
+            sg.get('GroupId', '') 
+            for sg in instance.get('SecurityGroups', [])
+        ]
+        iam_profile = instance.get('IamInstanceProfile', {})
+        iam_profile_arn = iam_profile.get('Arn', '')
 
         metrics = {
             "instanceType": instance.get('InstanceType', 'N/A'),
@@ -241,6 +250,10 @@ class NormalizationEngine:
             "privateIp": private_ip,
             "publicIp": public_ip,
             "securityGroups": security_groups,
+            "securityGroupIds": security_group_ids,
+            "vpcId": instance.get('VpcId', ''),
+            "subnetId": subnet_id or '',
+            "iamInstanceProfileArn": iam_profile_arn,
             "availabilityZone": instance.get('Placement', {}).get('AvailabilityZone', 'N/A'),
             "region": region,
             "securityScan": self._scan_ec2(instance)
@@ -281,7 +294,8 @@ class NormalizationEngine:
         account_id: str,
         location: str = "us-east-1",
         public_access: dict = {},
-        versioning: str = "Disabled"
+        versioning: str = "Disabled",
+        notification_config: dict = None
     ) -> dict:
         """
         Convert raw AWS S3 bucket into standard node format.
@@ -302,7 +316,9 @@ class NormalizationEngine:
             "region": region,
             "securityScan": "Pass: Block Public Access enabled" 
                            if is_public_blocked 
-                           else "Warning: Public access may be open"
+                           else "Warning: Public access may be open",
+            "bucketArn": resource_arn,
+            "notificationConfiguration": notification_config or {}
         }
 
         insights = "Public Access Blocked" if is_public_blocked else "Warning: Check Access"
@@ -413,6 +429,8 @@ class NormalizationEngine:
         # Check if Lambda is inside VPC
         vpc_config = function.get('VpcConfig', {})
         subnet_ids = vpc_config.get('SubnetIds', [])
+        security_group_ids = vpc_config.get('SecurityGroupIds', [])
+        vpc_id = vpc_config.get('VpcId', '')
         in_vpc = len(subnet_ids) > 0
 
         metrics = {
@@ -420,13 +438,19 @@ class NormalizationEngine:
             "memory": f"{function.get('MemorySize', 128)} MB",
             "timeout": f"{function.get('Timeout', 3)}s",
             "iamRole": function.get('Role', 'N/A').split('/')[-1],
+            "roleArn": function.get('Role', 'N/A'),
             "inVpc": in_vpc,
+            "vpcId": vpc_id,
+            "subnetIds": subnet_ids,
+            "securityGroupIds": security_group_ids,
             "region": region,
-            "securityScan": "Pass" if in_vpc else "Warning: Lambda not in VPC"
+            "securityScan": "Pass" if in_vpc else "Warning: Lambda not in VPC",
+            "environment": function.get('Environment', {}),
+            "eventSourceMappings": function.get('EventSourceMappings', []),
+            "functionArn": resource_arn
         }
 
         insights = "Inside VPC" if in_vpc else "Public Lambda"
-
         node = self.build_node(
             resource_arn=resource_arn,
             node_type="lambdaNode",
@@ -533,7 +557,8 @@ class NormalizationEngine:
             "endpointType": api.get('EndpointConfiguration', {}).get('Types', ['REGIONAL'])[0]
                            if 'EndpointConfiguration' in api else 'HTTP',
             "region": region,
-            "securityScan": "Pass"
+            "securityScan": "Pass",
+            "integrations": api.get('Integrations', [])
         }
 
         insights = f"{protocol} API"
@@ -597,6 +622,48 @@ class NormalizationEngine:
             if tag['Key'] == key:
                 return tag['Value']
         return None
+
+    # ─────────────────────────────────────────
+    # EVENTBRIDGE NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_eventbridge(self, rule: dict, region: str, account_id: str) -> dict:
+        """
+        Convert raw AWS EventBridge rule response into standard node format.
+        """
+        rule_name = rule['Name']
+        resource_arn = rule.get('Arn', f"arn:aws:events:{region}:{account_id}:rule/{rule_name}")
+
+        metrics = {
+            "ruleArn": resource_arn,
+            "state": rule.get('State', 'ENABLED'),
+            "scheduleExpression": rule.get('ScheduleExpression', ''),
+            "eventPattern": rule.get('EventPattern', ''),
+            "targets": rule.get('Targets', []),
+            "region": region,
+            "securityScan": "Pass"
+        }
+
+        node = self.build_node(
+            resource_arn=resource_arn,
+            node_type="eventbridgeNode",
+            name=rule_name,
+            service="eventbridge",
+            region=region,
+            account_id=account_id,
+            metrics=metrics,
+            insights="EventBridge Rule"
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+
+        return {
+            "node": node,
+            "fingerprint": fingerprint,
+            "resource_arn": resource_arn,
+            "resource_name": rule_name,
+            "raw_id": rule_name
+        }
 
 
 # Single instance
