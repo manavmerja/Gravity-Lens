@@ -10,7 +10,9 @@ from app.scanners.lambda_scanner import lambda_scanner
 from app.scanners.rds_scanner import rds_scanner
 from app.scanners.sqs_scanner import sqs_scanner
 from app.scanners.apigateway_scanner import apigateway_scanner
+from app.scanners.eventbridge_scanner import eventbridge_scanner
 from app.engines.snapshot_engine import snapshot_engine
+from app.engines.relationship_engine import relationship_engine
 from app.database import SessionLocal
 from uuid import UUID
 
@@ -159,6 +161,7 @@ class ScanOrchestrator:
                         credentials, region, aws_account_id
                     )
                     all_nodes.extend(sqs_result['nodes'])
+                    all_edges.extend(sqs_result.get('edges', []))
                     self._save_service_scan(
                         db, scan_job.id, 'sqs', region,
                         ScanStatus.success, len(sqs_result['nodes'])
@@ -188,11 +191,30 @@ class ScanOrchestrator:
                         ScanStatus.failed, 0, str(e)
                     )
 
+                # 7. EventBridge
+                try:
+                    eb_result = eventbridge_scanner.scan(
+                        credentials, region, aws_account_id
+                    )
+                    all_nodes.extend(eb_result['nodes'])
+                    all_edges.extend(eb_result['edges'])
+                    self._save_service_scan(
+                        db, scan_job.id, 'eventbridge', region,
+                        ScanStatus.success, len(eb_result['nodes'])
+                    )
+                except Exception as e:
+                    any_failure = True
+                    self._save_service_scan(
+                        db, scan_job.id, 'eventbridge', region,
+                        ScanStatus.failed, 0, str(e)
+                    )
+
             # 7. ── S3 (Global) ───────────────────────
             # S3 is global and not bound to a region. It is scanned once outside the region loop.
             try:
                 s3_result = s3_scanner.scan(credentials, aws_account_id)
                 all_nodes.extend(s3_result['nodes'])
+                all_edges.extend(s3_result.get('edges', []))
                 self._save_service_scan(
                     db, scan_job.id, 's3', 'global',
                     ScanStatus.success, len(s3_result['nodes'])
@@ -203,6 +225,20 @@ class ScanOrchestrator:
                     db, scan_job.id, 's3', 'global',
                     ScanStatus.failed, 0, str(e)
                 )
+
+            # ── Discover Relationships (Edges) ────
+            if all_nodes:
+                try:
+                    logger.info("Running Relationship Engine to discover resource connections...")
+                    discovered_edges = relationship_engine.discover_relationships(
+                        credentials=credentials,
+                        region_list=SCAN_REGIONS,
+                        nodes=all_nodes
+                    )
+                    all_edges.extend(discovered_edges)
+                    logger.info(f"Relationship Engine discovered {len(discovered_edges)} communication edges.")
+                except Exception as rel_err:
+                    logger.error(f"Error executing Relationship Engine: {str(rel_err)}")
 
             # ── Create Snapshot ───────────────────
             if all_nodes:

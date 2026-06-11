@@ -73,7 +73,9 @@ class SnapshotEngine:
                 source_arn=edge['source'],
                 target_arn=edge['target'],
                 edge_type=edge['type'],
-                label=edge.get('label', '')
+                label=edge.get('label', ''),
+                confidence=edge.get('confidence'),
+                evidence=edge.get('evidence')
             )
             db.add(relationship)
 
