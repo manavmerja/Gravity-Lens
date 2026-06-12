@@ -6,5 +6,7 @@ from app.models.models import (
     Snapshot,
     Resource,
     Relationship,
-    SnapshotDiff
+    SnapshotDiff,
+    NormalizedNode,
+    NormalizedEdge
 )

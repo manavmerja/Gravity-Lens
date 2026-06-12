@@ -124,6 +124,8 @@ class Snapshot(Base):
     aws_account    = relationship("AwsAccount", back_populates="snapshots")
     resources      = relationship("Resource", back_populates="snapshot")
     relationships  = relationship("Relationship", back_populates="snapshot")
+    normalized_nodes  = relationship("NormalizedNode", back_populates="snapshot")
+    normalized_edges  = relationship("NormalizedEdge", back_populates="snapshot")
 
 # ─────────────────────────────────────────
 # TABLE 6 — RESOURCES
@@ -195,3 +197,68 @@ class SnapshotDiff(Base):
     resource_type   = Column(String(50))
     change_details  = Column(JSONB)                             # what exactly changed
     created_at      = Column(DateTime(timezone=True), server_default=func.now())
+
+# ─────────────────────────────────────────
+# TABLE 9 — NORMALIZED NODES
+# ─────────────────────────────────────────
+
+class NormalizedNode(Base):
+    __tablename__ = "normalized_nodes"  # Stores the final computed React Flow nodes for each snapshot
+
+    id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    snapshot_id    = Column(UUID(as_uuid=True), ForeignKey("snapshots.id"), nullable=False)
+
+    # React Flow identity
+    node_id        = Column(Text, nullable=False)        # ARN used as React Flow node id
+    node_type      = Column(String(50), nullable=False)  # ec2Node, lambdaNode, vpcNode etc
+
+    # AWS identity
+    resource_arn   = Column(Text, nullable=False)
+    resource_name  = Column(String(255))
+    service        = Column(String(50), nullable=False)  # ec2, lambda, s3, vpc, subnet etc
+    region         = Column(String(50), nullable=False)
+    account_id     = Column(String(12), nullable=False)
+
+    # Hierarchy
+    parent_node_id = Column(Text, nullable=True)         # parent ARN for VPC/Subnet nesting
+
+    # Display data
+    insights       = Column(Text)                        # e.g. "Running - t3.micro"
+    metrics        = Column(JSONB)                       # service-specific metrics
+    tags           = Column(JSONB)                       # AWS resource tags
+
+    # Flags
+    is_inferred    = Column(Boolean, default=False)      # True for virtual/inferred nodes
+
+    # React Flow layout positions (0,0 by default; frontend handles layout)
+    position_x     = Column(Integer, default=0)
+    position_y     = Column(Integer, default=0)
+
+    created_at     = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    snapshot       = relationship("Snapshot", back_populates="normalized_nodes")
+
+# ─────────────────────────────────────────
+# TABLE 10 — NORMALIZED EDGES
+# ─────────────────────────────────────────
+
+class NormalizedEdge(Base):
+    __tablename__ = "normalized_edges"  # Stores the final computed React Flow edges for each snapshot
+
+    id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    snapshot_id    = Column(UUID(as_uuid=True), ForeignKey("snapshots.id"), nullable=False)
+
+    # React Flow edge fields
+    edge_id        = Column(Text, nullable=False)
+    source_arn     = Column(Text, nullable=False)
+    target_arn     = Column(Text, nullable=False)
+    edge_type      = Column(String(50), default="animatedEdge")
+    label          = Column(String(100))                 # triggers, writes_to, invokes etc
+    confidence     = Column(Integer, nullable=True)      # 0–100
+    evidence       = Column(JSONB, nullable=True)        # list of evidence type strings
+
+    created_at     = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    snapshot       = relationship("Snapshot", back_populates="normalized_edges")

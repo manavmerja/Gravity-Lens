@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from uuid import UUID as UUIDClass
 from app.database import get_db
-from app.models.models import AwsAccount, Snapshot, Resource, Relationship
+from app.models.models import AwsAccount, Snapshot, Resource, Relationship, NormalizedNode, NormalizedEdge
 from app.engines.normalizer import NormalizationEngine
 import logging
 import json
@@ -412,6 +412,9 @@ def normalize_account(
 
         logger.info(f"Returning {len(nodes)} nodes and {len(edges)} edges (dynamic + db)")
 
+        # Step 6: Persist normalized output to normalized_nodes / normalized_edges tables
+        _save_normalized_output(db, latest_snapshot.id, nodes, edges)
+
         return NormalizeAccountResponse(
             success=True,
             message=f"Successfully normalized snapshot v{latest_snapshot.version_number}",
@@ -430,6 +433,80 @@ def normalize_account(
             status_code=400,
             detail=f"Normalization error: {str(e)}"
         )
+
+
+# ─────────────────────────────────────────
+# SAVE NORMALIZED OUTPUT TO DB
+# ─────────────────────────────────────────
+
+def _save_normalized_output(
+    db: Session,
+    snapshot_id,
+    nodes: list,
+    edges: list
+) -> None:
+    """
+    Persist the final computed React Flow nodes and edges
+    into normalized_nodes and normalized_edges tables.
+
+    This is idempotent — existing rows for this snapshot
+    are deleted before re-inserting, so re-normalizing
+    the same snapshot is always safe.
+    """
+    try:
+        # Delete existing normalized data for this snapshot (idempotent)
+        db.query(NormalizedNode).filter(
+            NormalizedNode.snapshot_id == snapshot_id
+        ).delete(synchronize_session=False)
+
+        db.query(NormalizedEdge).filter(
+            NormalizedEdge.snapshot_id == snapshot_id
+        ).delete(synchronize_session=False)
+
+        # Insert all nodes
+        for node in nodes:
+            data = node.get("data", {})
+            db.add(NormalizedNode(
+                snapshot_id=snapshot_id,
+                node_id=node["id"],
+                node_type=node["type"],
+                resource_arn=data.get("resource_arn", node["id"]),
+                resource_name=data.get("name", ""),
+                service=data.get("service", ""),
+                region=data.get("region", ""),
+                account_id=data.get("account_id", ""),
+                parent_node_id=node.get("parentID") or node.get("parentId"),
+                insights=data.get("insights", ""),
+                metrics=data.get("metrics", {}),
+                tags=data.get("tags", {}),
+                is_inferred=node.get("inferred", False),
+                position_x=node.get("position", {}).get("x", 0),
+                position_y=node.get("position", {}).get("y", 0),
+            ))
+
+        # Insert all edges
+        for edge in edges:
+            db.add(NormalizedEdge(
+                snapshot_id=snapshot_id,
+                edge_id=edge["id"],
+                source_arn=edge["source"],
+                target_arn=edge["target"],
+                edge_type=edge.get("type", "animatedEdge"),
+                label=edge.get("label", ""),
+                confidence=edge.get("confidence"),
+                evidence=edge.get("evidence"),
+            ))
+
+        db.commit()
+        logger.info(
+            f"✓ Saved {len(nodes)} normalized nodes and "
+            f"{len(edges)} normalized edges for snapshot {snapshot_id}"
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to save normalized output: {str(e)}")
+        db.rollback()
+        # Don't raise — normalization response is still returned to the frontend
 
 
 # ─────────────────────────────────────────
