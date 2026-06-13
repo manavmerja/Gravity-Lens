@@ -4,6 +4,7 @@ from sqlalchemy import or_
 from uuid import UUID as UUIDClass
 from app.database import SessionLocal
 from app.models.models import Snapshot, Resource, Relationship, AwsAccount
+from app.utils.topology import normalize_topology_nodes
 
 router = APIRouter(prefix="/api/graph", tags=["Graph"])
 
@@ -117,6 +118,8 @@ def get_latest_graph(account_id: Optional[str] = None, only_new: bool = False):
                 }
             }
             nodes.append(node)
+
+        nodes = normalize_topology_nodes(nodes)
 
         # Build edges — exclude VPC/Subnet endpoints entirely
         edges = []

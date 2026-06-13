@@ -1,4 +1,4 @@
-# Normalization Route - Fetches data from DB and normalizes it
+# Normalization Route - Fetches data from DB, normalizes, and enriches with Metrics + Cost
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -9,6 +9,10 @@ from uuid import UUID as UUIDClass
 from app.database import get_db
 from app.models.models import AwsAccount, Snapshot, Resource, Relationship, NormalizedNode, NormalizedEdge
 from app.engines.normalizer import NormalizationEngine
+from app.engines.metrics_engine import metrics_engine
+from app.engines.cost_engine import cost_engine
+from app.services.aws_service import aws_service
+from app.utils.topology import normalize_topology_nodes
 import logging
 import json
 
@@ -21,8 +25,10 @@ router = APIRouter(prefix="/api/normalize", tags=["Normalization"])
 
 class NormalizeAccountRequest(BaseModel):
     """Request to normalize an account's latest snapshot"""
-    account_id: str  # AWS 12-digit account ID or database UUID
+    account_id: str              # AWS 12-digit account ID or database UUID
     only_new: Optional[bool] = False
+    include_metrics: Optional[bool] = True   # Run MetricsEngine (CloudWatch telemetry)
+    include_cost: Optional[bool] = True      # Run CostEngine (estimated monthly cost)
 
 
 class NormalizedResourceResponse(BaseModel):
@@ -33,14 +39,17 @@ class NormalizedResourceResponse(BaseModel):
 
 
 class NormalizeAccountResponse(BaseModel):
-    """Response with normalized account data"""
+    """Response with normalized account data — includes telemetry + cost in every node"""
     success: bool
     message: str
     account_name: Optional[str] = None
     snapshot_version: Optional[int] = None
     total_resources: int = 0
-    nodes: List[Dict[str, Any]] = []
+    nodes: List[Dict[str, Any]] = []      # Each node.data has telemetryData + cost injected
     edges: List[Dict[str, Any]] = []
+    total_monthly_cost: float = 0.0       # Sum of all node costs (USD/month)
+    cost_summary: Dict[str, float] = {}  # { "lambda": 2.45, "ec2": 48.20, ... }
+    cloudwatch_mode: str = "skipped"     # "live" | "unavailable" | "skipped"
 
 
 # ─────────────────────────────────────────
@@ -410,10 +419,102 @@ def normalize_account(
                 logger.error(f"Failed to merge DB edge: {str(e)}")
                 continue
 
+        nodes = normalize_topology_nodes(nodes)
         logger.info(f"Returning {len(nodes)} nodes and {len(edges)} edges (dynamic + db)")
 
-        # Step 6: Persist normalized output to normalized_nodes / normalized_edges tables
+        # ── Step 6: Persist raw normalized output to DB ───────────────────────
         _save_normalized_output(db, latest_snapshot.id, nodes, edges)
+
+        # ── Step 7: Enrich nodes with Metrics + Cost ──────────────────────────
+        # Inject telemetryData + metricsSummary + cost directly into node.data
+        # so frontend gets ONE complete response with everything.
+        total_monthly_cost = 0.0
+        cost_summary: dict = {}
+        cloudwatch_mode = "skipped"
+
+        if request.include_metrics or request.include_cost:
+            # Get AWS credentials for CloudWatch calls
+            cw_credentials = None
+            try:
+                cw_credentials = aws_service._get_temp_credentials(account.role_arn)
+                cloudwatch_mode = "live" if cw_credentials else "unavailable"
+            except Exception as cred_err:
+                logger.warning(f"[Normalize] Credentials unavailable: {cred_err}")
+                cloudwatch_mode = "unavailable"
+
+            # Group nodes by region for efficient CW client reuse
+            region_groups: dict = {}
+            for node in nodes:
+                rgn = node["data"].get("region", "ap-south-1")
+                region_groups.setdefault(rgn, []).append(node)
+
+            # ── Run MetricsEngine per region ──────────────────────────────────
+            metrics_results: dict = {}
+            if request.include_metrics and cw_credentials:
+                for rgn, rgn_nodes in region_groups.items():
+                    try:
+                        rgn_metrics = metrics_engine.collect_all(
+                            rgn_nodes, cw_credentials, rgn, period_hours=24
+                        )
+                        metrics_results.update(rgn_metrics)
+                    except Exception as me:
+                        logger.error(f"[Normalize] MetricsEngine error for {rgn}: {me}")
+            else:
+                # Fill empty so CostEngine still runs from static metrics in node.data
+                for node in nodes:
+                    arn = node["id"]
+                    metrics_results[arn] = {
+                        "service": node["data"].get("service", ""),
+                        "cloudwatch": {}, "telemetryData": [],
+                        "summary": {}, "schema": [],
+                        "errors": ["CloudWatch skipped" if not request.include_metrics else "No credentials"]
+                    }
+
+            # ── Run CostEngine ────────────────────────────────────────────────
+            primary_region = list(region_groups.keys())[0] if region_groups else "ap-south-1"
+            cost_results: dict = {}
+            if request.include_cost:
+                try:
+                    cost_results = cost_engine.calculate_all(
+                        nodes, metrics_results, region=primary_region
+                    )
+                except Exception as ce:
+                    logger.error(f"[Normalize] CostEngine error: {ce}")
+
+            # ── Inject into each node.data ────────────────────────────────────
+            for node in nodes:
+                arn = node["id"]
+                m   = metrics_results.get(arn, {})
+                c   = cost_results.get(arn, {})
+
+                # Inject telemetry + metrics summary
+                node["data"]["telemetryData"]    = m.get("telemetryData", [])
+                node["data"]["metricsSummary"]   = m.get("summary", {})
+                node["data"]["telemetrySchema"]  = m.get("schema", [])
+
+                # Inject cost
+                node["data"]["cost"] = {
+                    "billingModel":     c.get("billingModel", "unknown"),
+                    "totalMonthlyCost": c.get("totalMonthlyCost", 0.0),
+                    "currency":         c.get("currency", "USD"),
+                    "lineItems":        c.get("lineItems", []),
+                    "dimensions":       c.get("dimensions", {}),
+                    "notes":            c.get("notes", ""),
+                }
+
+            # ── Build cost summary ────────────────────────────────────────────
+            total_monthly_cost = cost_engine.total_cost(cost_results)
+            for arn, cr in cost_results.items():
+                svc = cr.get("service", "unknown")
+                cost_summary[svc] = round(
+                    cost_summary.get(svc, 0.0) + cr.get("totalMonthlyCost", 0.0), 4
+                )
+
+            logger.info(
+                f"[Normalize] Enrichment complete. "
+                f"CW mode: {cloudwatch_mode}. "
+                f"Estimated total: ${total_monthly_cost}/month"
+            )
 
         return NormalizeAccountResponse(
             success=True,
@@ -422,7 +523,10 @@ def normalize_account(
             snapshot_version=latest_snapshot.version_number,
             total_resources=len(nodes),
             nodes=nodes,
-            edges=edges
+            edges=edges,
+            total_monthly_cost=total_monthly_cost,
+            cost_summary=cost_summary,
+            cloudwatch_mode=cloudwatch_mode,
         )
 
     except HTTPException:
