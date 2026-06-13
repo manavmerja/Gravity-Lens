@@ -22,6 +22,13 @@ export interface GraphNode {
   position: { x: number; y: number };
   data: NodeData;
   parentID?: string;
+  parentId?: string;
+  extent?: "parent";
+  style?: {
+    width?: number;
+    height?: number;
+    [key: string]: number | string | undefined;
+  };
 }
 
 export interface GraphEdge {
