@@ -91,6 +91,7 @@ export default function ConnectAWSPage() {
           </Link>
         </div>
 
+        
         {/* Connect AWS Form */}
         <div className="my-auto py-8 flex items-center justify-center z-10 w-full">
           <div className="w-full max-w-md">
@@ -189,6 +190,8 @@ export default function ConnectAWSPage() {
             </ul>
           </div>
 
+
+          
         </div>
       </div>
     </main>
