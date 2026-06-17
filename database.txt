@@ -127,3 +127,65 @@ So the answer is YES:
 
 Snapshot Engine should run after EVERY scan, regardless of how many services.
 Diff Engine compares the latest snapshot with the previous one.
+
+
+<<<<<<<<<<---------------->>>>>>>>
+
+PS D:\PROJECT\Gravity-Lens> git pull 
+Updating b6d7b4e..5e0c036
+Fast-forward
+ backend/app/engines/costs/__init__.py       |  23 ++
+ backend/app/engines/metrics/__init__.py     |  30 ++
+ backend/app/engines/normalizer.py           |  81 ++++-
+ backend/app/engines/relationship_engine.py  | 381 ++++++++++++++++++++++
+ backend/app/engines/scan_orchestrator.py    |  36 +++
+ backend/app/engines/snapshot_engine.py      |   4 +-
+ backend/app/main.py                         |  11 +
+ backend/app/models/__init__.py              |   4 +-
+ backend/app/models/models.py                |  71 ++++-
+ backend/app/routers/analyze.py              | 283 +++++++++++++++++
+ backend/app/routers/graph.py                | 110 ++++++-
+ backend/app/routers/normalize.py            | 473 +++++++++++++++++++++++++---
+ backend/app/scanners/__init__.py            |   3 +-
+ backend/app/scanners/apigateway_scanner.py  |  22 ++
+ backend/app/scanners/eventbridge_scanner.py |  68 ++++
+ backend/app/scanners/lambda_scanner.py      |  25 +-
+ backend/app/scanners/s3_scanner.py          |  18 +-
+ backend/app/scanners/vpc_scanner.py         |  49 ++-
+ backend/app/utils/__init__.py               |   1 +
+ backend/app/utils/topology.py               | 206 ++++++++++++
+ backend/normalize.json                      | 423 +++++++++++++++++++------
+ backend/sampledata.json                     | 235 ++++++++++++++
+ frontend/src/app/connect-aws/page.tsx       |   3 +
+ frontend/src/types/index.ts                 |   7 +
+ implementation_plan.md                      |   3 +
+ 25 files changed, 2391 insertions(+), 179 deletions(-)
+ create mode 100644 backend/app/engines/costs/__init__.py
+ create mode 100644 backend/app/engines/metrics/__init__.py
+ create mode 100644 backend/app/engines/relationship_engine.py
+ create mode 100644 backend/app/routers/analyze.py
+ create mode 100644 backend/app/scanners/eventbridge_scanner.py
+ create mode 100644 backend/app/utils/__init__.py
+ create mode 100644 backend/app/utils/topology.py
+ create mode 100644 backend/sampledata.json
+PS D:\PROJECT\Gravity-Lens> 
+
+
+PS D:\PROJECT\Gravity-Lens> git pull
+Updating 5e0c036..155c16e
+Fast-forward
+ backend/app/engines/costs/base.py        | 109 +++++++++++++++++++++++++++++++
+ backend/app/engines/costs/ec2_cost.py    | 101 ++++++++++++++++++++++++++++
+ backend/app/engines/costs/lambda_cost.py |  68 +++++++++++++++++++
+ backend/app/engines/costs/s3_cost.py     |  76 +++++++++++++++++++++
+ backend/app/engines/costs/sqs_cost.py    |  54 +++++++++++++++
+ backend/app/engines/costs/subnet_cost.py |  74 +++++++++++++++++++++
+ backend/app/engines/costs/vpc_cost.py    |  69 +++++++++++++++++++
+ 7 files changed, 551 insertions(+)
+ create mode 100644 backend/app/engines/costs/base.py
+ create mode 100644 backend/app/engines/costs/ec2_cost.py
+ create mode 100644 backend/app/engines/costs/lambda_cost.py
+ create mode 100644 backend/app/engines/costs/s3_cost.py
+ create mode 100644 backend/app/engines/costs/sqs_cost.py
+ create mode 100644 backend/app/engines/costs/subnet_cost.py
+ create mode 100644 backend/app/engines/costs/vpc_cost.py
