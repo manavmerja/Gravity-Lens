@@ -238,11 +238,15 @@ def analyze_account(request: AnalyzeRequest, db: Session = Depends(get_db)):
                     "cloudwatchErrors": m_result.get("errors", []),
                     # Cost data
                     "cost": {
+                        "source":           c_result.get("source", "pricing-api"),
+                        "confidence":       c_result.get("confidence", "estimated"),
                         "billingModel":     c_result.get("billingModel", "unknown"),
-                        "totalMonthlyCost": c_result.get("totalMonthlyCost", 0.0),
+                        "dailyCost":        c_result.get("dailyCost", 0.0),
+                        "monthlyCost":      c_result.get("monthlyCost", 0.0),
+                        "yearlyCost":       c_result.get("yearlyCost", 0.0),
                         "currency":         c_result.get("currency", "USD"),
+                        "usageMetrics":     c_result.get("usageMetrics", {}),
                         "lineItems":        c_result.get("lineItems", []),
-                        "dimensions":       c_result.get("dimensions", {}),
                         "notes":            c_result.get("notes", ""),
                     }
                 }
@@ -256,7 +260,7 @@ def analyze_account(request: AnalyzeRequest, db: Session = Depends(get_db)):
         for arn, cr in cost_results.items():
             svc = cr.get("service", "unknown")
             cost_by_service[svc] = round(
-                cost_by_service.get(svc, 0.0) + cr.get("totalMonthlyCost", 0.0), 4
+                cost_by_service.get(svc, 0.0) + cr.get("monthlyCost", 0.0), 4
             )
 
         logger.info(

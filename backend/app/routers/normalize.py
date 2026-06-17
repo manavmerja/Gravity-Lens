@@ -494,11 +494,15 @@ def normalize_account(
 
                 # Inject cost
                 node["data"]["cost"] = {
+                    "source":           c.get("source", "pricing-api"),
+                    "confidence":       c.get("confidence", "estimated"),
                     "billingModel":     c.get("billingModel", "unknown"),
-                    "totalMonthlyCost": c.get("totalMonthlyCost", 0.0),
+                    "dailyCost":        c.get("dailyCost", 0.0),
+                    "monthlyCost":      c.get("monthlyCost", 0.0),
+                    "yearlyCost":       c.get("yearlyCost", 0.0),
                     "currency":         c.get("currency", "USD"),
+                    "usageMetrics":     c.get("usageMetrics", {}),
                     "lineItems":        c.get("lineItems", []),
-                    "dimensions":       c.get("dimensions", {}),
                     "notes":            c.get("notes", ""),
                 }
 
@@ -507,7 +511,7 @@ def normalize_account(
             for arn, cr in cost_results.items():
                 svc = cr.get("service", "unknown")
                 cost_summary[svc] = round(
-                    cost_summary.get(svc, 0.0) + cr.get("totalMonthlyCost", 0.0), 4
+                    cost_summary.get(svc, 0.0) + cr.get("monthlyCost", 0.0), 4
                 )
 
             logger.info(
