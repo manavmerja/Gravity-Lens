@@ -156,7 +156,7 @@ export default function DbExplorerPage() {
             {deleteStatus === "success" && <Check size={40} className="text-emerald-500" />}
             {deleteStatus === "error" && <Trash size={40} className="text-red-500" />}
             <div className="text-center">
-              <h3 className="text-lg font-bold text-white mb-2">
+              <h3 className="text-lg font-bold text-[var(--gl-text-primary)] mb-2">
                 {deleteStatus === "deleting" && "Processing Deletion"}
                 {deleteStatus === "success" && "Deletion Complete"}
                 {deleteStatus === "error" && "Deletion Failed"}
