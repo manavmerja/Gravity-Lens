@@ -138,11 +138,11 @@ export default function ConnectAWSPage() {
             clearInterval(pollInterval);
             clearInterval(stepTimer);
             setCurrentStep(5);
-            
+
             // Prefetch and compute layout before enabling the button
             await useCanvasStore.getState().prefetchAndLayoutInfrastructure(data.latest_snapshot_id);
             setCompleted(true);
-            
+
             // Automatic redirect after button is enabled
             setTimeout(() => {
               router.push('/dashboard/canvas');
@@ -377,7 +377,7 @@ export default function ConnectAWSPage() {
                     ) : (
                       <div className="flex items-center gap-2.5 text-xs text-indigo-400/80 animate-pulse">
                         <div className="h-2 w-2 rounded-full bg-indigo-400" />
-                        <span>Running scan jobs on Hugging Face...</span>
+                        <span>Running scan jobs...</span>
                       </div>
                     )}
                   </div>
