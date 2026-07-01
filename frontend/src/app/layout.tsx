@@ -5,6 +5,7 @@ import AppNavbar from "@/components/shared/AppNavbar";
 import { SmoothScrollProvider } from "@/components/shared/smooth-scroll";
 import { Preloader } from "@/components/ui/preloader";
 import { Metadata } from "next";
+import { ThemeProvider } from "@/components/canvas/ThemeProvider";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -31,13 +32,15 @@ export default async function RootLayout({
   const hasShown = cookieStore.get("gravity-preloader-shown")?.value === "true";
 
   return (
-    <html lang="en" className="dark">
-      <body className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased bg-[#0A0A0F] text-white`}>
-        <Preloader isSecondary={hasShown} />
-        <AppNavbar />
-        <SmoothScrollProvider>
-          {children}
-        </SmoothScrollProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Preloader isSecondary={hasShown} />
+          <AppNavbar />
+          <SmoothScrollProvider>
+            {children}
+          </SmoothScrollProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
