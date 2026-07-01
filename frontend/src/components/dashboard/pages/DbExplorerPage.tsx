@@ -43,6 +43,8 @@ export default function DbExplorerPage() {
   const [loadingTable, setLoadingTable] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting" | "success" | "error">("idle");
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   const safeLastSegment = (str: string | null | undefined) => {
     if (!str) return "N/A";
@@ -54,6 +56,13 @@ export default function DbExplorerPage() {
     if (!window.confirm(`Are you sure you want to delete this row from "${activeTab}"?`)) {
       return;
     }
+    setDeleteStatus("deleting");
+    setDeleteMessage(
+      activeTab === "accounts"
+        ? "Database deletion takes some time. Please wait..."
+        : "Deletion in progress. Please wait..."
+    );
+
     try {
       const res = await fetch(`/api/db/data?table=${activeTab}&id=${id}`, {
         method: "DELETE"
@@ -61,14 +70,23 @@ export default function DbExplorerPage() {
       if (res.ok) {
         fetchStats();
         fetchTableData(activeTab);
+        setDeleteStatus("success");
+        setDeleteMessage(`Successfully deleted record from ${activeTab}.`);
       } else {
         const err = await res.json();
-        alert(err.error || "Failed to delete row");
+        setDeleteStatus("error");
+        setDeleteMessage(err.error || "Failed to delete row");
       }
     } catch (e) {
       console.error("Delete error:", e);
-      alert("Failed to delete row due to connection error.");
+      setDeleteStatus("error");
+      setDeleteMessage("Failed to delete row due to connection error.");
     }
+    
+    // Auto-close success message after 3 seconds, keep error open until manual close
+    setTimeout(() => {
+      setDeleteStatus((prev) => (prev === "success" ? "idle" : prev));
+    }, 3000);
   };
 
   const fetchStats = async () => {
@@ -122,7 +140,32 @@ export default function DbExplorerPage() {
   });
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
+    <div className="flex flex-col h-full overflow-y-auto relative">
+      {deleteStatus !== "idle" && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-[var(--gl-bg-panel)] border border-[var(--gl-border)] rounded-xl p-8 shadow-2xl flex flex-col items-center gap-4 max-w-sm w-full mx-4">
+            {deleteStatus === "deleting" && <ArrowsClockwise size={40} className="animate-spin text-indigo-500" />}
+            {deleteStatus === "success" && <Check size={40} className="text-emerald-500" />}
+            {deleteStatus === "error" && <Trash size={40} className="text-red-500" />}
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-white mb-2">
+                {deleteStatus === "deleting" && "Processing Deletion"}
+                {deleteStatus === "success" && "Deletion Complete"}
+                {deleteStatus === "error" && "Deletion Failed"}
+              </h3>
+              <p className="text-xs text-[var(--gl-text-muted)] leading-relaxed">
+                {deleteMessage}
+              </p>
+            </div>
+            {(deleteStatus === "success" || deleteStatus === "error") && (
+              <Button onClick={() => setDeleteStatus("idle")} variant="outline" className="mt-2 w-full text-xs">
+                Close
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="p-8 pb-4 flex justify-between items-center gap-4">
         <div className="flex flex-col gap-2">
