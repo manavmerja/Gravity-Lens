@@ -237,7 +237,7 @@ export default function ArchitectureCanvas() {
 
   // ── Auto Layout ───────────────────────────────────────────────────────────
   const { isLayouting, triggerLayout } = useAutoLayout();
-  
+
   // If nodes are already visible (opacity === 1), they have been laid out previously.
   const needsInitialLayout = nodes.length > 0 && nodes.some(n => n.style?.opacity === 0);
   const [layoutState, setLayoutState] = useState<'idle' | 'measuring' | 'layouting' | 'done'>(
@@ -410,11 +410,11 @@ export default function ArchitectureCanvas() {
 
 
   return (
-    <div className="flex flex-col w-full h-full canvas-bg bg-[var(--gl-bg-base)] transition-colors duration-300 overflow-hidden">
-      
+    <div className="flex flex-col w-full h-full bg-[var(--gl-bg-base)] transition-colors duration-300 overflow-hidden">
+
       {/* 3. Wrap React Flow in a flex-1 container so it fills the remaining height */}
       <div className="flex-1 flex flex-row w-full h-full relative overflow-hidden">
-        
+
         {nodes.length > 0 && layoutState !== 'done' && (
           <div className="absolute inset-0 bg-[var(--gl-bg-base)] flex flex-col items-center justify-center z-50 text-sm text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-3">
