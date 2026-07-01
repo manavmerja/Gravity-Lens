@@ -2,8 +2,8 @@
 # Each schema is a class that inherits from Base.
 
 from sqlalchemy import (
-    Column, String, Integer, Boolean, 
-    DateTime, Text, ForeignKey, Enum
+    Column, String, Integer, Boolean,
+    DateTime, Text, ForeignKey, Enum, Float
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
@@ -38,12 +38,12 @@ class User(Base):
     id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email      = Column(String(255), unique=True, nullable=False)
     name       = Column(String(255))
-    auth0_id   = Column(String(255), unique=True)  # Auth0 user ID this Auth0 later we use them 
+    auth0_id   = Column(String(255), unique=True)  # Auth0 user ID this Auth0 later we use them
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    aws_accounts = relationship("AwsAccount", back_populates="user") # this python allowing you to access a user's aws accounts like user.aws_accounts and aws_account.user this twoway mapping 
+    aws_accounts = relationship("AwsAccount", back_populates="user") # this python allowing you to access a user's aws accounts like user.aws_accounts and aws_account.user this twoway mapping
 
 # ─────────────────────────────────────────
 # TABLE 2 — AWS ACCOUNTS
@@ -84,7 +84,7 @@ class ScanJob(Base):
 
     # Relationships
     aws_account    = relationship("AwsAccount", back_populates="scan_jobs")
-    service_scans  = relationship("ServiceScan", back_populates="scan_job") 
+    service_scans  = relationship("ServiceScan", back_populates="scan_job")
 
 # ─────────────────────────────────────────
 # TABLE 4 — SERVICE SCANS
@@ -119,6 +119,14 @@ class Snapshot(Base):
     label          = Column(String(255))                  # e.g. "Version 1"
     is_latest      = Column(Boolean, default=False)  # Set to True for the newest version, False for historical versions.
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Timeline stats dedicated columns
+    total_resources   = Column(Integer, nullable=True, default=0)
+    total_monthly_cost = Column(Float, nullable=True, default=0.0)
+    added_count       = Column(Integer, nullable=True, default=0)
+    removed_count     = Column(Integer, nullable=True, default=0)
+    modified_count    = Column(Integer, nullable=True, default=0)
+    cost_by_service   = Column(JSONB, nullable=True)
 
     # Relationships
     aws_account    = relationship("AwsAccount", back_populates="snapshots")
@@ -176,6 +184,7 @@ class Relationship(Base):
     label          = Column(String(100))
     confidence     = Column(Integer, nullable=True)
     evidence       = Column(JSONB, nullable=True)
+    category       = Column(String(50), nullable=True, default="runtime")
 
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -257,6 +266,7 @@ class NormalizedEdge(Base):
     label          = Column(String(100))                 # triggers, writes_to, invokes etc
     confidence     = Column(Integer, nullable=True)      # 0–100
     evidence       = Column(JSONB, nullable=True)        # list of evidence type strings
+    category       = Column(String(50), nullable=True, default="runtime")
 
     created_at     = Column(DateTime(timezone=True), server_default=func.now())
 
