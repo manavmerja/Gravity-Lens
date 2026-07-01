@@ -4,7 +4,7 @@ import React from "react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import {
-  Sun, Moon, Bell, CaretRight,
+  Sun, Moon, CaretRight,
   WifiHigh, WifiSlash, SidebarSimple,
   ArrowsClockwise, ArrowCounterClockwise,
 } from "@phosphor-icons/react";
@@ -35,11 +35,10 @@ export function TopHeader() {
   const { state: sidebarState, toggleSidebar } = useSidebar();
   const leftPanelOpen = sidebarState === "expanded";
   const {
-    activeSection, openAlertCount,
+    activeSection,
     isAwsConnected, awsRegion,
   } = useDashboardStore();
 //test
-  const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
   const isLoading = useCanvasStore((state) => state.isLoading);
   const fetchInfrastructure = useCanvasStore((state) => state.fetchInfrastructure);
   const setTourActive = useCanvasStore((state) => state.setTourActive);
@@ -130,74 +129,7 @@ export function TopHeader() {
 
       <FontSizeControl />
 
-      {/* Alerts Bell (Detailed Dropdown) */}
-      <div className="relative">
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="ghost" size="icon"
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className={`h-8 w-8 relative text-[var(--gl-text-muted)] hover:text-[var(--gl-text-primary)] hover:bg-[var(--gl-bg-muted)] ${isNotificationsOpen ? 'bg-[var(--gl-bg-muted)] text-[var(--gl-text-primary)]' : ''}`}
-              />
-            }
-          >
-            <motion.div whileHover={{ rotate: [0, -15, 15, -15, 0] }} transition={{ duration: 0.4 }}>
-              <Bell size={16} weight={isNotificationsOpen ? "fill" : "regular"} />
-            </motion.div>
-            {openAlertCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-1 ring-[var(--gl-bg-panel)] animate-pulse" />
-            )}
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Notifications</TooltipContent>
-        </Tooltip>
 
-        {isNotificationsOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="absolute top-full right-0 mt-2 w-80 bg-[var(--gl-bg-panel)] border border-[var(--gl-border)] rounded-xl shadow-xl overflow-hidden z-[100]"
-          >
-            <div className="p-3 border-b border-[var(--gl-border)] flex justify-between items-center bg-[var(--gl-bg-muted)]">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--gl-text-secondary)]">Notifications</span>
-              <span className="text-[9px] font-bold text-blue-400 cursor-pointer hover:underline">Mark all as read</span>
-            </div>
-            <div className="max-h-[300px] overflow-y-auto">
-              {/* Mock alerts */}
-              <div className="p-4 border-b border-[var(--gl-border)] hover:bg-[var(--gl-bg-muted)] cursor-pointer transition-colors">
-                <div className="flex gap-3">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-red-500 shrink-0" />
-                  <div>
-                    <p className="text-xs font-bold text-[var(--gl-text-primary)]">High Latency: Ingress API</p>
-                    <p className="text-[10px] text-[var(--gl-text-secondary)] mt-1 leading-relaxed">Average response time exceeded 60ms threshold across 3 AZs.</p>
-                    <p className="text-[9px] font-bold text-[var(--gl-text-muted)] mt-2 uppercase tracking-widest">2 mins ago</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 border-b border-[var(--gl-border)] hover:bg-[var(--gl-bg-muted)] cursor-pointer transition-colors">
-                <div className="flex gap-3">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-amber-500 shrink-0" />
-                  <div>
-                    <p className="text-xs font-bold text-[var(--gl-text-primary)]">Cost Spike Detected</p>
-                    <p className="text-[10px] text-[var(--gl-text-secondary)] mt-1 leading-relaxed">MongoDB Atlas projected cost increased by 15% due to high IOPS.</p>
-                    <p className="text-[9px] font-bold text-[var(--gl-text-muted)] mt-2 uppercase tracking-widest">1 hour ago</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 hover:bg-[var(--gl-bg-muted)] cursor-pointer transition-colors">
-                <div className="flex gap-3">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-emerald-500 shrink-0" />
-                  <div>
-                    <p className="text-xs font-bold text-[var(--gl-text-primary)]">Deployment Successful</p>
-                    <p className="text-[10px] text-[var(--gl-text-secondary)] mt-1 leading-relaxed">VPC configuration updated automatically.</p>
-                    <p className="text-[9px] font-bold text-[var(--gl-text-muted)] mt-2 uppercase tracking-widest">3 hours ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </div>
 
       {/* Theme Toggle */}
       <Tooltip>
