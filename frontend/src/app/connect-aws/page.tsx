@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LiquidButton } from "@/components/ui/liquid-button";
 import { Backlight } from "@/components/ui/backlight";
+import { useRouter } from "next/navigation";
+import { useCanvasStore } from "@/store/useCanvasStore";
 
 function MoveLeftArrow() {
   return (
@@ -66,6 +68,14 @@ export default function ConnectAWSPage() {
   const [projectName, setProjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedAccountId, setCopiedAccountId] = useState(false);
+  const router = useRouter();
+
+  const handleCopyAccountId = () => {
+    navigator.clipboard.writeText("618642320905");
+    setCopiedAccountId(true);
+    setTimeout(() => setCopiedAccountId(false), 2000);
+  };
 
   // Connection and scanning state
   const [connectedAccount, setConnectedAccount] = useState<any>(null);
@@ -132,12 +142,22 @@ export default function ConnectAWSPage() {
           setScanStatus(status);
 
           if (status === "success" || status === "partial" || status === "completed") {
-            setCurrentStep(5);
-            setCompleted(true);
             clearInterval(pollInterval);
+            clearInterval(stepTimer);
+            setCurrentStep(5);
+
+            // Prefetch and compute layout before enabling the button
+            await useCanvasStore.getState().prefetchAndLayoutInfrastructure(data.latest_snapshot_id);
+            setCompleted(true);
+
+            // Automatic redirect after button is enabled
+            setTimeout(() => {
+              router.push('/dashboard/canvas');
+            }, 1000);
           } else if (status === "failed") {
             setError("The initial scan job failed. Please verify IAM policy permissions.");
             clearInterval(pollInterval);
+            clearInterval(stepTimer);
           }
         }
       } catch (err) {
@@ -222,8 +242,22 @@ export default function ConnectAWSPage() {
                   </div>
 
                   {error && (
-                    <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-xl">
-                      {error}
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-xl">
+                        {error}
+                      </div>
+                      {error.toLowerCase().includes("already connected") && (
+                        <Link href="/dashboard/canvas" className="w-full">
+                          <LiquidButton
+                            className="w-full bg-indigo-500 text-white hover:bg-indigo-600 border-transparent shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+                            size="sm"
+                            style={{ "--liquid-color": "#4f46e5", "--liquid-underline": "transparent" } as React.CSSProperties}
+                            type="button"
+                          >
+                            Enter Architecture Canvas
+                          </LiquidButton>
+                        </Link>
+                      )}
                     </div>
                   )}
 
@@ -364,7 +398,7 @@ export default function ConnectAWSPage() {
                     ) : (
                       <div className="flex items-center gap-2.5 text-xs text-indigo-400/80 animate-pulse">
                         <div className="h-2 w-2 rounded-full bg-indigo-400" />
-                        <span>Running scan jobs on Hugging Face...</span>
+                        <span>Running scan jobs...</span>
                       </div>
                     )}
                   </div>
@@ -412,19 +446,43 @@ export default function ConnectAWSPage() {
           {/* Quick Steps Guide */}
           <div className="w-full max-w-lg mt-8 border border-white/5 bg-[#09090D]/60 backdrop-blur-md p-6 rounded-2xl flex flex-col gap-4 shadow-xl relative overflow-hidden group">
             <div className="absolute -top-px left-5 right-5 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400">Quick Setup</h4>
-            <ul className="flex flex-col gap-3 text-xs text-gray-400">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400">Step-by-Step IAM Setup</h4>
+            <ul className="flex flex-col gap-4.5 text-xs text-gray-400">
               <li className="flex items-start gap-3">
-                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 font-semibold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">1</span>
-                <span>Select <strong>AWS Account</strong> trust entity in your IAM Console.</span>
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">1</span>
+                <span>Open your <strong>AWS IAM Console</strong>, navigate to <strong>Roles</strong> under Access Management, and click <strong>Create role</strong>.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 font-semibold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">2</span>
-                <span>Attach <strong>ReadOnlyAccess</strong> to grant discovery permissions.</span>
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">2</span>
+                <span>Under Trusted entity type, choose <strong>AWS Account</strong>.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 font-semibold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">3</span>
-                <span>Copy <strong>Role ARN</strong> and paste into the configuration form.</span>
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">3</span>
+                <div className="flex flex-col gap-1.5 w-full">
+                  <span>Select <strong>Another AWS account</strong> and input our Account ID:</span>
+                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl font-mono text-indigo-300 text-xs w-fit select-all shadow-inner">
+                    <span>618642320905</span>
+                    <button
+                      type="button"
+                      onClick={handleCopyAccountId}
+                      className="bg-white/10 hover:bg-white/20 active:scale-95 px-2 py-0.5 rounded-lg text-[10px] text-white font-sans font-semibold transition-all cursor-pointer"
+                    >
+                      {copiedAccountId ? "✓ Copied" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">4</span>
+                <span>Click Next. In permissions, filter policies by selecting <strong>AWS managed - job function</strong>, then search for and check <strong>ReadOnlyAccess</strong> to grant discovery permissions, and click Next.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">5</span>
+                <span>Give the role a name (e.g. <strong>GravityLensAccess</strong>) and click <strong>Create role</strong>.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">6</span>
+                <span>Open your newly created role, copy its **Role ARN**, and paste it into the form on the left.</span>
               </li>
             </ul>
           </div>
