@@ -71,7 +71,7 @@ export default function Home() {
   ];
 
   return (
-    <main ref={containerRef} className="min-h-screen bg-[#0A0A0F] text-white relative overflow-hidden">
+    <main ref={containerRef} className="min-h-screen bg-[#0A0A0F] text-white relative">
       {/* Hero Home Screen Section (with Stars & Glows) */}
       <div className="relative min-h-screen w-full">
         <StarsBackground className="min-h-screen flex flex-col items-center justify-start pt-36 relative w-full bg-[#0A0A0F]">

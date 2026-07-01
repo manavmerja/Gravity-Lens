@@ -13,7 +13,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarInset className="flex flex-col flex-1 overflow-hidden bg-[var(--gl-bg-surface)]">
           <TopHeader />
           <div className="flex flex-1 overflow-hidden relative">
-            <main className="flex-1 overflow-auto bg-[var(--gl-bg-surface)] relative">
+            <main
+              data-lenis-prevent
+              className="flex-1 overflow-y-auto overscroll-contain bg-[var(--gl-bg-surface)] relative"
+            >
               {children}
             </main>
           </div>
