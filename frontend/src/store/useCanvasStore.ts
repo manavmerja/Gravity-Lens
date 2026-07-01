@@ -338,9 +338,14 @@ export const useCanvasStore = create<CanvasState>()(
       prefetchAndLayoutInfrastructure: async (snapshotId?: string | null) => {
         set({ isLoading: true });
         try {
-          const url = snapshotId
-            ? `/api/aws/topology/snapshot/${snapshotId}`
-            : '/api/aws/topology/latest';
+          const activeSnap = snapshotId !== undefined ? snapshotId : get().activeSnapshotId;
+          const accountId = get().selectedAccountId;
+          let url = '/api/infrastructure';
+          if (activeSnap) {
+            url = `/api/history?snapshot_id=${activeSnap}`;
+          } else if (accountId) {
+            url = `/api/infrastructure?account_id=${accountId}`;
+          }
           
           const response = await fetch(url);
           
