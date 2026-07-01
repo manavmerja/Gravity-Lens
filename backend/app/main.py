@@ -87,7 +87,7 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(
     process_pending_scans,
     "interval",
-    seconds=300,
+    seconds=5,
     max_instances=1,
     coalesce=True
 )
