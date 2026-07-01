@@ -140,6 +140,9 @@ def normalize_account(
                 previous_node_ids = {r.node_id for r in previous_resources}
                 resources = [r for r in resources if r.node_id not in previous_node_ids]
 
+
+                
+
         if not resources:
             return NormalizeAccountResponse(
                 success=True,
