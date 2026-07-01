@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useCanvasStore } from "@/store/useCanvasStore";
 import { 
   Terminal, ArrowsClockwise, Play, CheckCircle, 
   XCircle, Spinner, Clock, IdentificationCard, 
-  ListBullets, Info
+  ListBullets, Info, ArrowRight
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 
@@ -48,10 +49,15 @@ const CHECKLIST_SERVICES = [
 ];
 
 export default function LogsPage() {
+  const router = useRouter();
   const [jobs, setJobs] = useState<ScanJob[]>([]);
   const [serviceScans, setServiceScans] = useState<ServiceScan[]>([]);
   const [loading, setLoading] = useState(true);
   const [isScanLoading, setIsScanLoading] = useState(false);
+  const [scanJustCompleted, setScanJustCompleted] = useState(false);
+
+  // Track the previous activeJob to detect the running→done transition
+  const prevActiveJobIdRef = useRef<string | null>(null);
 
   const { 
     connectedAccounts, 
@@ -90,6 +96,31 @@ export default function LogsPage() {
     const interval = setInterval(fetchLogsData, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // Find active running/pending scan jobs (defined early so the effect can use it)
+  // Note: activeJob is computed below via useMemo — we duplicate the check here inside
+  // the effect to avoid stale closure issues with the ref.
+  useEffect(() => {
+    const currentActiveJob = jobs.find(j => j.status === "running" || j.status === "pending") || null;
+    const prevId = prevActiveJobIdRef.current;
+
+    if (prevId && !currentActiveJob) {
+      // A scan WAS running and is NOW gone (completed/failed) → fetch infrastructure & show CTA
+      const justCompleted = jobs.find(j => j.id === prevId);
+      if (justCompleted?.status === "success" || justCompleted?.status === "partial") {
+        // Auto-fetch fresh infrastructure data
+        fetchInfrastructure();
+        setScanJustCompleted(true);
+      }
+    }
+
+    if (currentActiveJob) {
+      // A new scan started — reset the completion banner
+      setScanJustCompleted(false);
+    }
+
+    prevActiveJobIdRef.current = currentActiveJob?.id ?? null;
+  }, [jobs]);
 
   const handleSyncAWS = async () => {
     setIsScanLoading(true);
@@ -143,6 +174,37 @@ export default function LogsPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[var(--gl-bg-base)]">
+      {/* ── Scan Complete Success Banner ── */}
+      {scanJustCompleted && (
+        <div className="shrink-0 px-6 py-3 bg-gradient-to-r from-emerald-500/10 via-indigo-500/10 to-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-500">
+          <div className="flex items-center gap-3">
+            <CheckCircle size={20} className="text-emerald-400 shrink-0" weight="fill" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-bold text-emerald-400">
+                Scan Complete — Infrastructure Loaded!
+              </span>
+              <span className="text-[11px] text-[var(--gl-text-muted)]">
+                Your cloud infrastructure has been discovered and is ready to explore.
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push("/dashboard/canvas")}
+            className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold tracking-wide transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-400/30 active:scale-95"
+          >
+            View Infrastructure
+            <ArrowRight size={14} weight="bold" />
+          </button>
+        </div>
+      )}
+
+      {/* ── Infrastructure Loading Bar (while fetchInfrastructure runs after scan) ── */}
+      {storeIsLoading && (
+        <div className="shrink-0 h-1 bg-[var(--gl-bg-muted)] overflow-hidden">
+          <div className="h-full bg-indigo-500 animate-[scan-progress_1.8s_ease-in-out_infinite] w-1/2 rounded-full" />
+        </div>
+      )}
+
       {/* Header bar with controls */}
       <div className="p-8 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--gl-border)] bg-[var(--gl-bg-panel)] shrink-0">
         <div className="flex flex-col gap-1.5">

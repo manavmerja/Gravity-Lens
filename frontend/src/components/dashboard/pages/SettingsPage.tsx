@@ -1,6 +1,7 @@
 
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FontSizeSelector } from "../FontSizeSelector";
 import { useCanvasStore } from "../../../store/useCanvasStore";
 
@@ -14,6 +15,7 @@ interface AwsAccount {
 }
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [roleArn, setRoleArn] = useState("");
   const [accountName, setAccountName] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -89,9 +91,13 @@ export default function SettingsPage() {
         setStatusMessage({ text: data.message, isError: false });
         setRoleArn("");
         setAccountName("");
-        // If this was the first account, auto-select it
+        // If this was the first account, auto-select it then send user to Logs to watch live scan
         const wasEmpty = accounts.length === 0;
-        fetchAccounts(wasEmpty);
+        await fetchAccounts(wasEmpty);
+        if (wasEmpty) {
+          // Small delay so state settles before navigating
+          setTimeout(() => router.push("/dashboard/logs"), 400);
+        }
       } else {
         setStatusMessage({ text: data.detail || data.message || "Failed to link AWS account.", isError: true });
       }
