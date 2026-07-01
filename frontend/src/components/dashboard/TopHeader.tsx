@@ -36,7 +36,7 @@ export function TopHeader() {
   const leftPanelOpen = sidebarState === "expanded";
   const {
     activeSection,
-    isAwsConnected, awsRegion,
+    isAwsConnected,
   } = useDashboardStore();
 //test
   const isLoading = useCanvasStore((state) => state.isLoading);
@@ -117,7 +117,7 @@ export function TopHeader() {
               transition={{ repeat: Infinity, duration: 2 }}
               className="w-1.5 h-1.5 rounded-full bg-emerald-400"
             />
-            <span className="text-[var(--gl-text-secondary)] font-mono">{awsRegion}</span>
+            <span className="text-[var(--gl-text-secondary)] font-medium">Connected</span>
           </>
         ) : (
           <>
