@@ -278,8 +278,18 @@ export const useCanvasStore = create<CanvasState>()(
             url = `/api/infrastructure?account_id=${accountId}`;
           }
           const response = await fetch(url);
-          if (!response.ok) throw new Error('Failed to capture cloud layout topology');
-          const data = await response.json();
+          
+          let data;
+          if (!response.ok) {
+            console.warn("Backend failed or not connected, using fallback data.");
+            data = initialData;
+          } else {
+            data = await response.json();
+            if (!data.nodes || data.nodes.length === 0) {
+              console.warn("Backend returned empty topology, using fallback data.");
+              data = initialData;
+            }
+          }
 
           // ADDON: Validate parent references and purge ghost groups before setting state
           const { validateParentRefs, purgeGhostGroups, normalizeEdges } = await import('../lib/layout/nodeUtils');
@@ -304,9 +314,23 @@ export const useCanvasStore = create<CanvasState>()(
           });
         } catch (error) {
           console.error("Hydration Error for rendering topology:", error);
-          // Resume temporal on error so undo/redo are not permanently broken
-          useCanvasStore.temporal.getState().resume();
-          set({ isLoading: false });
+          
+          // Fallback on error as well
+          console.warn("Network error fetching topology, using fallback data.");
+          const { validateParentRefs, purgeGhostGroups, normalizeEdges } = await import('../lib/layout/nodeUtils');
+          const { setInitialScatterPositions, sortByParentFirst } = await import('../lib/layout/gravityLayout');
+          const safeNodes = validateParentRefs(initialData.nodes as CloudNode[]);
+          const cleanNodes = purgeGhostGroups(safeNodes, initialData.edges as CloudEdge[]);
+          const cleanEdges = normalizeEdges(initialData.edges as CloudEdge[]);
+          const scattered = setInitialScatterPositions(cleanNodes);
+
+          useCanvasStore.temporal.getState().pause();
+
+          set({
+            nodes: sortByParentFirst(scattered) as CloudNode[],
+            edges: cleanEdges as CloudEdge[],
+            isLoading: false
+          });
         }
       }
     }),
