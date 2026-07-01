@@ -6,6 +6,8 @@ import {
   HardDrive, GitFork, IdentificationCard, Copy, Check, Trash
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { useAlertConfirm } from "@/components/shared/AlertConfirmProvider";
+
 
 interface DbStats {
   aws_accounts: number;
@@ -36,6 +38,7 @@ const tableDescriptions: Record<TableTab, string> = {
 };
 
 export default function DbExplorerPage() {
+  const { showConfirm, showAlert } = useAlertConfirm();
   const [stats, setStats] = useState<DbStats | null>(null);
   const [activeTab, setActiveTab] = useState<TableTab>("accounts");
   const [tableData, setTableData] = useState<any[]>([]);
@@ -51,7 +54,12 @@ export default function DbExplorerPage() {
   };
 
   const handleDeleteRow = async (id: string) => {
-    if (!window.confirm(`Are you sure you want to delete this row from "${activeTab}"?`)) {
+    const confirmed = await showConfirm(
+      "Confirm Delete",
+      `Are you sure you want to delete this row from "${activeTab}"?`,
+      { isDanger: true, confirmText: "Delete", cancelText: "Cancel" }
+    );
+    if (!confirmed) {
       return;
     }
     try {
@@ -63,11 +71,11 @@ export default function DbExplorerPage() {
         fetchTableData(activeTab);
       } else {
         const err = await res.json();
-        alert(err.error || "Failed to delete row");
+        showAlert("Error", err.error || "Failed to delete row", "error");
       }
     } catch (e) {
       console.error("Delete error:", e);
-      alert("Failed to delete row due to connection error.");
+      showAlert("Error", "Failed to delete row due to connection error.", "error");
     }
   };
 
