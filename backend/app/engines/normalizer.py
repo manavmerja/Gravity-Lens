@@ -82,7 +82,8 @@ class NormalizationEngine:
         Build a standard React Flow edge.
         Always uses animatedEdge type.
         """
-        edge_id = f"edge-{source_arn[-8:]}-{target_arn[-8:]}"
+        uid = hashlib.sha256(f"{source_arn}|{label}|{target_arn}".encode()).hexdigest()[:8]
+        edge_id = f"edge-{uid}"
         return {
             "id": edge_id,
             "source": source_arn,
@@ -95,7 +96,7 @@ class NormalizationEngine:
     # VPC NORMALIZER
     # ─────────────────────────────────────────
 
-    def normalize_vpc(self, vpc: dict, region: str, account_id: str, endpoints: list = None, security_groups: list = None) -> dict:
+    def normalize_vpc(self, vpc: dict, region: str, account_id: str, endpoints: list = None, security_groups: list = None, route_tables: list = None, enis: list = None) -> dict:
         """
         Convert raw AWS VPC response into standard node format.
         """
@@ -115,7 +116,9 @@ class NormalizationEngine:
             "region": region,
             "securityScan": self._scan_vpc(vpc),
             "endpoints": endpoints or [],
-            "securityGroups": security_groups or []
+            "securityGroups": security_groups or [],
+            "routeTables": route_tables or [],
+            "enis": enis or []
         }
 
         insights = "Default VPC" if is_default else "Custom VPC"
@@ -377,7 +380,8 @@ class NormalizationEngine:
             "status": status,
             "multiAZ": db_instance.get('MultiAZ', False),
             "region": region,
-            "securityScan": self._scan_rds(db_instance)
+            "securityScan": self._scan_rds(db_instance),
+            "dbSubnetGroupVpcId": db_instance.get('DBSubnetGroup', {}).get('VpcId', '')
         }
 
         insights = f"{status.capitalize()} - {engine}"
@@ -585,6 +589,344 @@ class NormalizationEngine:
         }
 
     # ─────────────────────────────────────────
+    # SNS NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_sns(
+        self,
+        topic_arn: str,
+        attributes: dict,
+        subscriptions: list,
+        region: str,
+        account_id: str
+    ) -> dict:
+        topic_name = topic_arn.split(':')[-1]
+        is_fifo = topic_name.endswith('.fifo')
+        is_encrypted = bool(attributes.get('KmsMasterKeyId'))
+
+        # Collect subscriber ARNs (Lambda, SQS) for relationship discovery
+        subscriber_arns = [
+            s.get('SubscriptionArn', '')
+            for s in subscriptions
+            if s.get('Protocol') in ('lambda', 'sqs')
+        ]
+        endpoint_arns = [
+            s.get('Endpoint', '')
+            for s in subscriptions
+            if s.get('Protocol') in ('lambda', 'sqs')
+        ]
+
+        metrics = {
+            "type": "FIFO" if is_fifo else "Standard",
+            "encrypted": is_encrypted,
+            "subscriptionsCount": int(attributes.get('SubscriptionsConfirmed', 0)),
+            "subscriptionEndpoints": endpoint_arns,
+            "region": region,
+            "securityScan": "Pass: Encrypted" if is_encrypted else "Warning: Not encrypted"
+        }
+
+        node = self.build_node(
+            resource_arn=topic_arn,
+            node_type="snsNode",
+            name=topic_name,
+            service="sns",
+            region=region,
+            account_id=account_id,
+            metrics=metrics,
+            insights="FIFO Topic" if is_fifo else "Standard Topic"
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+        return {
+            "node": node, "fingerprint": fingerprint,
+            "resource_arn": topic_arn, "resource_name": topic_name, "raw_id": topic_name
+        }
+
+    # ─────────────────────────────────────────
+    # DYNAMODB NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_dynamodb(
+        self,
+        table: dict,
+        region: str,
+        account_id: str
+    ) -> dict:
+        table_name = table['TableName']
+        resource_arn = table.get('TableArn', f"arn:aws:dynamodb:{region}:{account_id}:table/{table_name}")
+        status = table.get('TableStatus', 'ACTIVE')
+
+        # Stream ARN — used for Lambda trigger discovery
+        stream_arn = table.get('LatestStreamArn', '')
+        stream_enabled = table.get('StreamSpecification', {}).get('StreamEnabled', False)
+
+        billing = table.get('BillingModeSummary', {}).get('BillingMode', 'PROVISIONED')
+        item_count = table.get('ItemCount', 0)
+        size_bytes = table.get('TableSizeBytes', 0)
+
+        metrics = {
+            "status": status,
+            "billingMode": billing,
+            "itemCount": item_count,
+            "sizeBytes": size_bytes,
+            "streamEnabled": stream_enabled,
+            "streamArn": stream_arn,
+            "region": region,
+            "securityScan": "Pass" if status == 'ACTIVE' else f"Warning: Table status {status}"
+        }
+
+        node = self.build_node(
+            resource_arn=resource_arn,
+            node_type="dynamodbNode",
+            name=table_name,
+            service="dynamodb",
+            region=region,
+            account_id=account_id,
+            metrics=metrics,
+            insights=f"{billing} - {item_count} items"
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+        return {
+            "node": node, "fingerprint": fingerprint,
+            "resource_arn": resource_arn, "resource_name": table_name, "raw_id": table_name
+        }
+
+    # ─────────────────────────────────────────
+    # IAM ROLE NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_iam_role(
+        self,
+        role: dict,
+        attached_policies: list,
+        inline_policies: list,
+        region: str,
+        account_id: str
+    ) -> dict:
+        role_name = role['RoleName']
+        role_arn = role['Arn']
+
+        # Extract services this role can access from policy names (heuristic)
+        policy_names = [p.get('PolicyName', '') for p in attached_policies] + inline_policies
+        services_accessed = []
+        for p in policy_names:
+            pl = p.lower()
+            for svc in ['s3', 'sqs', 'sns', 'dynamodb', 'rds', 'lambda', 'ec2', 'ecs', 'cloudfront']:
+                if svc in pl and svc not in services_accessed:
+                    services_accessed.append(svc)
+
+        metrics = {
+            "roleArn": role_arn,
+            "attachedPolicies": [p.get('PolicyName') for p in attached_policies],
+            "inlinePolicies": inline_policies,
+            "servicesAccessed": services_accessed,
+            "assumeRolePrincipals": self._extract_principals(role.get('AssumeRolePolicyDocument', {})),
+            "region": "global",
+            "securityScan": "Pass"
+        }
+
+        node = self.build_node(
+            resource_arn=role_arn,
+            node_type="iamRoleNode",
+            name=role_name,
+            service="iam",
+            region="global",
+            account_id=account_id,
+            metrics=metrics,
+            insights=f"{len(attached_policies)} policies attached"
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+        return {
+            "node": node, "fingerprint": fingerprint,
+            "resource_arn": role_arn, "resource_name": role_name, "raw_id": role_name
+        }
+
+    # ─────────────────────────────────────────
+    # SECURITY GROUP NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_security_group(
+        self,
+        sg: dict,
+        region: str,
+        account_id: str
+    ) -> dict:
+        sg_id = sg['GroupId']
+        sg_name = sg.get('GroupName', sg_id)
+        vpc_id = sg.get('VpcId', '')
+        resource_arn = f"arn:aws:ec2:{region}:{account_id}:security-group/{sg_id}"
+
+        inbound = sg.get('IpPermissions', [])
+        outbound = sg.get('IpPermissionsEgress', [])
+
+        # Check for overly permissive rules
+        open_inbound = any(
+            r.get('IpProtocol') == '-1' or
+            any(ip.get('CidrIp') == '0.0.0.0/0' for ip in r.get('IpRanges', []))
+            for r in inbound
+        )
+
+        # Collect referenced SG IDs from ingress (for relationship discovery)
+        referenced_sg_ids = []
+        for rule in inbound:
+            for pair in rule.get('UserIdGroupPairs', []):
+                gid = pair.get('GroupId')
+                if gid:
+                    referenced_sg_ids.append(gid)
+
+        metrics = {
+            "sgId": sg_id,
+            "vpcId": vpc_id,
+            "inboundRuleCount": len(inbound),
+            "outboundRuleCount": len(outbound),
+            "openInbound": open_inbound,
+            "referencedSgIds": referenced_sg_ids,
+            "region": region,
+            "securityScan": "Warning: Open inbound 0.0.0.0/0" if open_inbound else "Pass"
+        }
+
+        node = self.build_node(
+            resource_arn=resource_arn,
+            node_type="securityGroupNode",
+            name=sg_name,
+            service="securitygroup",
+            region=region,
+            account_id=account_id,
+            metrics=metrics,
+            insights="Open Inbound" if open_inbound else "Restricted"
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+        return {
+            "node": node, "fingerprint": fingerprint,
+            "resource_arn": resource_arn, "resource_name": sg_name, "raw_id": sg_id,
+            "vpc_id": vpc_id
+        }
+
+    # ─────────────────────────────────────────
+    # ECS CLUSTER NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_ecs_cluster(
+        self,
+        cluster: dict,
+        services: list,
+        region: str,
+        account_id: str,
+        subnet_map: dict = {}
+    ) -> dict:
+        cluster_arn = cluster['clusterArn']
+        cluster_name = cluster['clusterName']
+
+        # Collect IAM roles and images from services for relationship discovery
+        task_roles = []
+        execution_roles = []
+        ecr_images = []
+        service_subnet_ids = []
+
+        for svc in services:
+            td = svc.get('taskDefinitionDetail', {})
+            if td.get('taskRoleArn'):
+                task_roles.append(td['taskRoleArn'])
+            if td.get('executionRoleArn'):
+                execution_roles.append(td['executionRoleArn'])
+            for container in td.get('containerDefinitions', []):
+                img = container.get('image', '')
+                if img:
+                    ecr_images.append(img)
+            # Collect subnets from network config
+            net = svc.get('networkConfiguration', {}).get('awsvpcConfiguration', {})
+            service_subnet_ids.extend(net.get('subnets', []))
+
+        # Use first subnet for parent
+        subnet_arn = subnet_map.get(service_subnet_ids[0]) if service_subnet_ids else None
+
+        metrics = {
+            "status": cluster.get('status', 'ACTIVE'),
+            "activeServicesCount": cluster.get('activeServicesCount', len(services)),
+            "runningTasksCount": cluster.get('runningTasksCount', 0),
+            "pendingTasksCount": cluster.get('pendingTasksCount', 0),
+            "taskRoles": list(set(task_roles)),
+            "executionRoles": list(set(execution_roles)),
+            "ecrImages": list(set(ecr_images)),
+            "subnetIds": list(set(service_subnet_ids)),
+            "region": region,
+            "securityScan": "Pass"
+        }
+
+        node = self.build_node(
+            resource_arn=cluster_arn,
+            node_type="ecsNode",
+            name=cluster_name,
+            service="ecs",
+            region=region,
+            account_id=account_id,
+            metrics=metrics,
+            insights=f"{cluster.get('activeServicesCount', 0)} services running",
+            parent_arn=subnet_arn
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+        return {
+            "node": node, "fingerprint": fingerprint,
+            "resource_arn": cluster_arn, "resource_name": cluster_name, "raw_id": cluster_name,
+            "parent_arn": subnet_arn
+        }
+
+    # ─────────────────────────────────────────
+    # CLOUDFRONT NORMALIZER
+    # ─────────────────────────────────────────
+
+    def normalize_cloudfront(
+        self,
+        distribution: dict,
+        account_id: str
+    ) -> dict:
+        dist_id = distribution['Id']
+        domain = distribution.get('DomainName', '')
+        resource_arn = distribution.get('ARN', f"arn:aws:cloudfront::{account_id}:distribution/{dist_id}")
+        status = distribution.get('Status', 'Deployed')
+
+        # Origins — can be S3 buckets or ALB/custom origins (relationship discovery)
+        origins = distribution.get('Origins', {}).get('Items', [])
+        origin_domains = [o.get('DomainName', '') for o in origins]
+        s3_origins = [d for d in origin_domains if '.s3.' in d or d.endswith('.s3.amazonaws.com')]
+        # Normalise S3 origin domain → bucket name
+        s3_bucket_names = [d.split('.s3.')[0] for d in s3_origins]
+
+        is_https_only = distribution.get('DefaultCacheBehavior', {}).get('ViewerProtocolPolicy') == 'https-only'
+
+        metrics = {
+            "domainName": domain,
+            "status": status,
+            "enabled": distribution.get('Enabled', True),
+            "originDomains": origin_domains,
+            "s3BucketNames": s3_bucket_names,
+            "httpsOnly": is_https_only,
+            "region": "global",
+            "securityScan": "Pass" if is_https_only else "Warning: HTTPS not enforced"
+        }
+
+        node = self.build_node(
+            resource_arn=resource_arn,
+            node_type="cloudfrontNode",
+            name=domain or dist_id,
+            service="cloudfront",
+            region="global",
+            account_id=account_id,
+            metrics=metrics,
+            insights=f"{status} - {'HTTPS only' if is_https_only else 'HTTP allowed'}"
+        )
+
+        fingerprint = self.generate_fingerprint(metrics)
+        return {
+            "node": node, "fingerprint": fingerprint,
+            "resource_arn": resource_arn, "resource_name": domain or dist_id, "raw_id": dist_id
+        }
+
+    # ─────────────────────────────────────────
     # SECURITY SCAN HELPERS
     # ─────────────────────────────────────────
 
@@ -622,6 +964,21 @@ class NormalizationEngine:
             if tag['Key'] == key:
                 return tag['Value']
         return None
+
+    def _extract_principals(self, assume_role_doc: dict) -> list:
+        """Extract service principals from AssumeRolePolicyDocument."""
+        principals = []
+        for stmt in assume_role_doc.get('Statement', []):
+            p = stmt.get('Principal', {})
+            if isinstance(p, str):
+                principals.append(p)
+            elif isinstance(p, dict):
+                for v in p.values():
+                    if isinstance(v, list):
+                        principals.extend(v)
+                    elif isinstance(v, str):
+                        principals.append(v)
+        return principals
 
     # ─────────────────────────────────────────
     # EVENTBRIDGE NORMALIZER
@@ -664,6 +1021,84 @@ class NormalizationEngine:
             "resource_name": rule_name,
             "raw_id": rule_name
         }
+
+    # ─────────────────────────────────────────
+    # PASS 2 EXTENDED NORMALIZERS
+    # ─────────────────────────────────────────
+
+    def normalize_sns_endpoints(self, topic_arn, endpoints, region, account_id):
+        """Pass 2 variant — used by pass2_scanners. Stores pre-grouped endpoints dict."""
+        topic_name = topic_arn.split(":")[-1]
+        metrics = {"endpoints": endpoints, "region": region}
+        node = self.build_node(topic_arn, "snsNode", topic_name, "sns", region, account_id, metrics)
+        return {"node": node, "resource_arn": topic_arn, "resource_name": topic_name, "raw_id": topic_arn}
+
+    def normalize_alb(self, alb, target_groups, region, account_id):
+        arn = alb['LoadBalancerArn']
+        name = alb['LoadBalancerName']
+        metrics = {
+            "targetGroups": target_groups, 
+            "region": region,
+            "DNSName": alb.get('DNSName', ''),
+            "securityGroups": alb.get('SecurityGroups', []),
+            "vpcId": alb.get('VpcId', ''),
+            "subnets": [az.get('SubnetId') for az in alb.get('AvailabilityZones', [])]
+        }
+        node = self.build_node(arn, "albNode", name, "alb", region, account_id, metrics)
+        return {"node": node, "resource_arn": arn, "resource_name": name, "raw_id": arn}
+
+    def normalize_ecs(self, task_def, region, account_id):
+        arn = task_def['taskDefinitionArn']
+        name = task_def.get('family', arn.split('/')[-1])
+        secrets = []
+        images = []
+        logGroup = ""
+        for c in task_def.get('containerDefinitions', []):
+            secrets.extend(c.get('secrets', []))
+            if 'image' in c: images.append(c['image'])
+            lg = c.get('logConfiguration', {}).get('options', {}).get('awslogs-group')
+            if lg: logGroup = lg
+        metrics = {
+            "taskRoleArn": task_def.get('taskRoleArn', ''),
+            "executionRoleArn": task_def.get('executionRoleArn', ''),
+            "secrets": secrets,
+            "images": images,
+            "logGroup": logGroup,
+            "region": region
+        }
+        node = self.build_node(arn, "ecsNode", name, "ecs", region, account_id, metrics)
+        return {"node": node, "resource_arn": arn, "resource_name": name, "raw_id": arn}
+
+
+    def normalize_stepfunctions(self, detail, region, account_id):
+        arn = detail['stateMachineArn']
+        name = detail['name']
+        try:
+            states = json.loads(detail.get('definition', '{}')).get('States', {})
+        except:
+            states = {}
+        metrics = {"states": states, "region": region}
+        node = self.build_node(arn, "stepFunctionsNode", name, "stepfunctions", region, account_id, metrics)
+        return {"node": node, "resource_arn": arn, "resource_name": name, "raw_id": arn}
+
+    def normalize_secretsmanager(self, secret, region, account_id):
+        arn = secret['ARN']
+        name = secret['Name']
+        metrics = {"rotationLambdaARN": secret.get('RotationLambdaARN', ''), "region": region}
+        node = self.build_node(arn, "secretsManagerNode", name, "secretsmanager", region, account_id, metrics)
+        return {"node": node, "resource_arn": arn, "resource_name": name, "raw_id": arn}
+
+    def normalize_eks(self, cluster, nodegroup_arns, region, account_id):
+        arn = cluster.get('arn', f"arn:aws:eks:{region}:{account_id}:cluster/{cluster.get('name')}")
+        name = cluster.get('name', 'eks')
+        metrics = {
+            "roleArn": cluster.get('roleArn', ''),
+            "securityGroupIds": cluster.get('resourcesVpcConfig', {}).get('securityGroupIds', []),
+            "nodegroupArns": nodegroup_arns,
+            "region": region
+        }
+        node = self.build_node(arn, "eksNode", name, "eks", region, account_id, metrics)
+        return {"node": node, "resource_arn": arn, "resource_name": name, "raw_id": arn}
 
 
 # Single instance

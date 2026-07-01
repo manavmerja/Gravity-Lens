@@ -20,8 +20,14 @@ from app.engines.metrics.sqs_metrics        import SQSMetricsCollector
 from app.engines.metrics.ec2_metrics        import EC2MetricsCollector
 from app.engines.metrics.s3_metrics         import S3MetricsCollector
 from app.engines.metrics.vpc_metrics        import VPCMetricsCollector
-from app.engines.metrics.apigateway_metrics import APIGatewayMetricsCollector
-from app.engines.metrics.subnet_metrics     import SubnetMetricsCollector
+from app.engines.metrics.apigateway_metrics   import APIGatewayMetricsCollector
+from app.engines.metrics.subnet_metrics       import SubnetMetricsCollector
+from app.engines.metrics.eventbridge_metrics  import EventBridgeMetricsCollector
+from app.engines.metrics.rds_metrics         import RDSMetricsCollector
+from app.engines.metrics.sns_metrics         import SNSMetricsCollector
+from app.engines.metrics.dynamodb_metrics    import DynamoDBMetricsCollector
+from app.engines.metrics.cloudfront_metrics  import CloudFrontMetricsCollector
+from app.engines.metrics.ecs_metrics         import ECSMetricsCollector
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +62,12 @@ class MetricsEngine:
             VPCMetricsCollector(),
             APIGatewayMetricsCollector(),
             SubnetMetricsCollector(),
+            EventBridgeMetricsCollector(),
+            RDSMetricsCollector(),
+            SNSMetricsCollector(),
+            DynamoDBMetricsCollector(),
+            CloudFrontMetricsCollector(),
+            ECSMetricsCollector(),
         ]
         for collector in builtins:
             self.register(collector)
