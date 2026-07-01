@@ -61,23 +61,6 @@ export function TopHeader() {
   return (
     <header className="flex items-center h-14 px-4 gap-3 border-b border-[var(--gl-border)] bg-[var(--gl-bg-panel)] shrink-0 z-40">
 
-      {/* Home Button */}
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center h-8 w-8 rounded-md text-[var(--gl-text-muted)] hover:text-[var(--gl-text-primary)] hover:bg-[var(--gl-bg-muted)] transition-colors"
-            />
-          }
-        >
-          <House size={16} />
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          Back to Home
-        </TooltipContent>
-      </Tooltip>
-
       {/* Left Panel Toggle */}
       <Tooltip>
         <TooltipTrigger
@@ -93,6 +76,23 @@ export function TopHeader() {
         </TooltipTrigger>
         <TooltipContent side="bottom">
           {leftPanelOpen ? "Collapse sidebar" : "Expand sidebar"}
+        </TooltipContent>
+      </Tooltip>
+
+      {/* Home Button */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center h-8 w-8 rounded-md text-[var(--gl-text-muted)] hover:text-[var(--gl-text-primary)] hover:bg-[var(--gl-bg-muted)] transition-colors"
+            />
+          }
+        >
+          <House size={16} />
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          Back to Home
         </TooltipContent>
       </Tooltip>
 
