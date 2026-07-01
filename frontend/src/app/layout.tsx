@@ -6,6 +6,7 @@ import { SmoothScrollProvider } from "@/components/shared/smooth-scroll";
 import { Preloader } from "@/components/ui/preloader";
 import { Metadata } from "next";
 import { ThemeProvider } from "@/components/canvas/ThemeProvider";
+import { AlertConfirmProvider } from "@/components/shared/AlertConfirmProvider";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -38,7 +39,9 @@ export default async function RootLayout({
           <Preloader isSecondary={hasShown} />
           <AppNavbar />
           <SmoothScrollProvider>
-            {children}
+            <AlertConfirmProvider>
+              {children}
+            </AlertConfirmProvider>
           </SmoothScrollProvider>
         </ThemeProvider>
       </body>

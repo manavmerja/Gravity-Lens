@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useCanvasStore } from "@/store/useCanvasStore";
 import { useDashboardStore } from "../useDashboardStore";
 import { Clock, ArrowsClockwise, GitFork, TrendUp, Folder, Info, Plus, X } from "@phosphor-icons/react";
+import { useAlertConfirm } from "@/components/shared/AlertConfirmProvider";
+
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { MotionCarousel } from "@/components/animate-ui/components/community/motion-carousel";
@@ -41,6 +43,7 @@ interface DiffItem {
 }
 
 export default function TimelinePage() {
+  const { showAlert, showConfirm } = useAlertConfirm();
   const [versions, setVersions] = useState<SnapshotVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<SnapshotVersion | null>(null);
   const [diffItems, setDiffItems] = useState<DiffItem[]>([]);
@@ -135,7 +138,7 @@ export default function TimelinePage() {
     const currentAccount = connectedAccounts.find(a => a.id === selectedAccountId);
     const awsAccountId = currentAccount?.account_id;
     if (!awsAccountId) {
-      alert("Please select a connected AWS Account first.");
+      showAlert("Account Required", "Please select a connected AWS Account first.", "warning");
       return;
     }
 
@@ -145,10 +148,10 @@ export default function TimelinePage() {
         method: "POST",
       });
       if (res.ok) {
-        alert("Infrastructure scan successfully enqueued!");
+        showAlert("Success", "Infrastructure scan successfully enqueued!", "success");
         setTimeout(fetchHistory, 3000);
       } else {
-        alert("Failed to queue new scan. Make sure your local scan worker is active.");
+        showAlert("Failed", "Failed to queue new scan. Make sure your local scan worker is active.", "error");
       }
     } catch (err) {
       console.error("Scan error:", err);

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FontSizeSelector } from "../FontSizeSelector";
 import { useCanvasStore } from "../../../store/useCanvasStore";
+import { useAlertConfirm } from "@/components/shared/AlertConfirmProvider";
 
 interface AwsAccount {
   id: string;
@@ -16,6 +17,7 @@ interface AwsAccount {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { showConfirm, showAlert } = useAlertConfirm();
   const [roleArn, setRoleArn] = useState("");
   const [accountName, setAccountName] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -110,7 +112,12 @@ export default function SettingsPage() {
   };
 
   const handleResetDatabase = async () => {
-    if (!window.confirm("Are you absolutely sure you want to delete all database data? This will clear all connected accounts and snapshots.")) {
+    const confirmed = await showConfirm(
+      "Reset Database",
+      "Are you absolutely sure you want to delete all database data? This will clear all connected accounts and snapshots.",
+      { isDanger: true, confirmText: "Yes, Reset All", cancelText: "Cancel" }
+    );
+    if (!confirmed) {
       return;
     }
 

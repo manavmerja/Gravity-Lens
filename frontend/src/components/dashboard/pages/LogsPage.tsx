@@ -9,6 +9,8 @@ import {
   ListBullets, Info, ArrowRight
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { useAlertConfirm } from "@/components/shared/AlertConfirmProvider";
+
 
 interface ScanJob {
   id: string;
@@ -50,6 +52,7 @@ const CHECKLIST_SERVICES = [
 
 export default function LogsPage() {
   const router = useRouter();
+  const { showAlert } = useAlertConfirm();
   const [jobs, setJobs] = useState<ScanJob[]>([]);
   const [serviceScans, setServiceScans] = useState<ServiceScan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,7 +133,7 @@ export default function LogsPage() {
       const awsAccountId = currentAccount?.account_id;
       
       if (!awsAccountId) {
-        alert("Please select a connected AWS Account first in the dropdown.");
+        showAlert("Account Required", "Please select a connected AWS Account first in the dropdown.", "warning");
         return;
       }
 
@@ -140,7 +143,7 @@ export default function LogsPage() {
       if (res.ok) {
         fetchLogsData();
       } else {
-        alert("Failed to queue new scan. Check if background worker is active.");
+        showAlert("Failed", "Failed to queue new scan. Check if background worker is active.", "error");
       }
     } catch (err) {
       console.error("Trigger manual scan error:", err);

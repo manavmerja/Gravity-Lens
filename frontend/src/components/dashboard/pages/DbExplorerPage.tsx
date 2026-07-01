@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Database, ArrowsClockwise, TreeStructure, 
+import {
+  Database, ArrowsClockwise, TreeStructure,
   HardDrive, GitFork, IdentificationCard, Copy, Check, Trash
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { useAlertConfirm } from "@/components/shared/AlertConfirmProvider";
+
 
 interface DbStats {
   aws_accounts: number;
@@ -36,6 +38,7 @@ const tableDescriptions: Record<TableTab, string> = {
 };
 
 export default function DbExplorerPage() {
+  const { showConfirm, showAlert } = useAlertConfirm();
   const [stats, setStats] = useState<DbStats | null>(null);
   const [activeTab, setActiveTab] = useState<TableTab>("accounts");
   const [tableData, setTableData] = useState<any[]>([]);
@@ -53,7 +56,12 @@ export default function DbExplorerPage() {
   };
 
   const handleDeleteRow = async (id: string) => {
-    if (!window.confirm(`Are you sure you want to delete this row from "${activeTab}"?`)) {
+    const confirmed = await showConfirm(
+      "Confirm Delete",
+      `Are you sure you want to delete this row from "${activeTab}"?`,
+      { isDanger: true, confirmText: "Delete", cancelText: "Cancel" }
+    );
+    if (!confirmed) {
       return;
     }
     setDeleteStatus("deleting");
@@ -82,7 +90,7 @@ export default function DbExplorerPage() {
       setDeleteStatus("error");
       setDeleteMessage("Failed to delete row due to connection error.");
     }
-    
+
     // Auto-close success message after 3 seconds, keep error open until manual close
     setTimeout(() => {
       setDeleteStatus((prev) => (prev === "success" ? "idle" : prev));

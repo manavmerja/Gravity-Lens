@@ -7,6 +7,8 @@ import {
   Clock, GitBranch, Globe, ArrowUpRight, ArrowDownRight,
   Minus, ArrowsClockwise, Eye, Scroll, ClockCounterClockwise, CheckCircle
 } from "@phosphor-icons/react";
+import { useAlertConfirm } from "@/components/shared/AlertConfirmProvider";
+
 import { useRouter } from "next/navigation";
 import { useCanvasStore } from "@/store/useCanvasStore";
 import { staggerContainer, staggerItem } from "../../lib/motion";
@@ -209,6 +211,8 @@ const iconVariants = {
 /* ──────────────── Overview Page ──────────────── */
 export default function OverviewPage() {
   const router = useRouter();
+  const { showAlert } = useAlertConfirm();
+
   
   // Zustand Store
   const { selectedAccountId, connectedAccounts } = useCanvasStore();
@@ -293,7 +297,7 @@ export default function OverviewPage() {
     const currentAccount = connectedAccounts.find(a => a.id === selectedAccountId || a.account_id === selectedAccountId);
     const awsAccountId = currentAccount?.account_id;
     if (!awsAccountId) {
-      alert("Please select a connected AWS Account first.");
+      showAlert("Account Required", "Please select a connected AWS Account first.", "warning");
       return;
     }
 
@@ -322,12 +326,12 @@ export default function OverviewPage() {
           }
         }, 200);
       } else {
-        alert("Failed to queue new scan. Make sure your local scan worker is active.");
+        showAlert("Failed", "Failed to queue new scan. Make sure your local scan worker is active.", "error");
         setScanStatus("idle");
       }
     } catch (err) {
       console.error("Scan error:", err);
-      alert("An error occurred while triggering the scan.");
+      showAlert("Error", "An error occurred while triggering the scan.", "error");
       setScanStatus("idle");
     }
   };
