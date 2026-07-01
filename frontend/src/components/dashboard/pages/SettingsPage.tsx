@@ -35,12 +35,18 @@ export default function SettingsPage() {
   };
 
   // Fetch connected accounts on mount
-  const fetchAccounts = async () => {
+  const fetchAccounts = async (autoSelectFirst = false) => {
     try {
       const res = await fetch("/api/aws/accounts");
       if (res.ok) {
-        const data = await res.json();
+        const data: AwsAccount[] = await res.json();
         setAccounts(data);
+        // Auto-select if only 1 account and nothing is selected yet, OR caller explicitly requested it (first connect)
+        const currentSelectedId = useCanvasStore.getState().selectedAccountId;
+        if (data.length === 1 && (!currentSelectedId || autoSelectFirst)) {
+          setSelectedAccountId(data[0].id);
+          fetchInfrastructure();
+        }
       }
     } catch (error) {
       console.error("Failed to fetch accounts:", error);
@@ -83,8 +89,9 @@ export default function SettingsPage() {
         setStatusMessage({ text: data.message, isError: false });
         setRoleArn("");
         setAccountName("");
-        // Reload list
-        fetchAccounts();
+        // If this was the first account, auto-select it
+        const wasEmpty = accounts.length === 0;
+        fetchAccounts(wasEmpty);
       } else {
         setStatusMessage({ text: data.detail || data.message || "Failed to link AWS account.", isError: true });
       }
@@ -264,17 +271,24 @@ export default function SettingsPage() {
                       <span className="text-[10px] text-[var(--gl-text-muted)]">
                         Connected: {new Date(acc.created_at).toLocaleDateString()}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectAccount(acc.id)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 ${selectedAccountId === acc.id
-                            ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 cursor-default"
-                            : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
-                          }`}
-                        disabled={selectedAccountId === acc.id}
-                      >
-                        {selectedAccountId === acc.id ? "✓ Active" : "Select"}
-                      </button>
+                      {/* Show Select button only when multiple accounts exist — single account is always auto-selected */}
+                      {accounts.length > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSelectAccount(acc.id)}
+                          className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 ${selectedAccountId === acc.id
+                              ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 cursor-default"
+                              : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
+                            }`}
+                          disabled={selectedAccountId === acc.id}
+                        >
+                          {selectedAccountId === acc.id ? "✓ Active" : "Select"}
+                        </button>
+                      ) : (
+                        <span className="px-3 py-1 rounded-lg text-xs font-semibold tracking-wide bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                          ✓ Active
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
