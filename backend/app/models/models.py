@@ -63,8 +63,8 @@ class AwsAccount(Base):
 
     # Relationships
     user           = relationship("User", back_populates="aws_accounts")
-    scan_jobs      = relationship("ScanJob", back_populates="aws_account")
-    snapshots      = relationship("Snapshot", back_populates="aws_account")
+    scan_jobs      = relationship("ScanJob", back_populates="aws_account", cascade="all, delete-orphan")
+    snapshots      = relationship("Snapshot", back_populates="aws_account", cascade="all, delete-orphan")
 
 # ─────────────────────────────────────────
 # TABLE 3 — SCAN JOBS
@@ -84,7 +84,7 @@ class ScanJob(Base):
 
     # Relationships
     aws_account    = relationship("AwsAccount", back_populates="scan_jobs")
-    service_scans  = relationship("ServiceScan", back_populates="scan_job")
+    service_scans  = relationship("ServiceScan", back_populates="scan_job", cascade="all, delete-orphan")
 
 # ─────────────────────────────────────────
 # TABLE 4 — SERVICE SCANS
