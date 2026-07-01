@@ -16,6 +16,8 @@ import enum
 # ENUMS
 # ─────────────────────────────────────────
 
+
+
 class ScanStatus(str, enum.Enum):
     pending = "pending"
     running = "running"
