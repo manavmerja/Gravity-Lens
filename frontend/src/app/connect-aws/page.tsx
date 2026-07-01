@@ -293,9 +293,9 @@ export default function ConnectAWSPage() {
                   {/* Progressive Steps */}
                   <div className="flex flex-col gap-5 my-2">
                     {SCAN_STEPS.map((step) => {
-                      const isCompleted = step.id < currentStep;
-                      const isActive = step.id === currentStep;
-                      const isPending = step.id > currentStep;
+                      const isCompleted = completed || step.id < currentStep;
+                      const isActive = !completed && step.id === currentStep;
+                      const isPending = !completed && step.id > currentStep;
 
                       return (
                         <div key={step.id} className="flex gap-3 items-start">
