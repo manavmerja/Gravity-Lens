@@ -4,18 +4,11 @@ import React, { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { usePathname } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-
   useEffect(() => {
-    if (pathname && (pathname.startsWith("/dashboard") || pathname === "/timeline" || pathname === "/connect-aws")) {
-      return;
-    }
-
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Fast start, slow end
@@ -50,7 +43,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       lenis.destroy();
       gsap.ticker.remove(updateScroll);
     };
-  }, [pathname]);
+  }, []);
 
   return <>{children}</>;
 }
