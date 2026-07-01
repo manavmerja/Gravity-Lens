@@ -26,8 +26,8 @@ jobs:
           git config --global user.name "GitHub Actions"
           
           # Clone the Hugging Face repository using the HF_TOKEN
-          # We use the space URL format: https://<username>:<token>@huggingface.co/spaces/<username>/<space-name>
-          git clone https://manavmerja:$HF_TOKEN@huggingface.co/spaces/manavmerja/gravity-lens-backend hf-space
+          # We use the space URL format: https://oauth2:<token>@huggingface.co/spaces/<username>/<space-name>
+          git clone https://oauth2:$HF_TOKEN@huggingface.co/spaces/manavmerja/gravity-lens-backend hf-space
           
           # Clean the existing files in the HF repository (except git metadata)
           find hf-space -maxdepth 1 ! -name 'hf-space' ! -name '.git' -exec rm -rf {} +
