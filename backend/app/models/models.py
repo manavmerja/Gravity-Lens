@@ -16,6 +16,8 @@ import enum
 # ENUMS
 # ─────────────────────────────────────────
 
+
+
 class ScanStatus(str, enum.Enum):
     pending = "pending"
     running = "running"
@@ -130,10 +132,14 @@ class Snapshot(Base):
 
     # Relationships
     aws_account    = relationship("AwsAccount", back_populates="snapshots")
-    resources      = relationship("Resource", back_populates="snapshot")
-    relationships  = relationship("Relationship", back_populates="snapshot")
-    normalized_nodes  = relationship("NormalizedNode", back_populates="snapshot")
-    normalized_edges  = relationship("NormalizedEdge", back_populates="snapshot")
+    resources      = relationship("Resource", back_populates="snapshot", cascade="all, delete-orphan")
+    relationships  = relationship("Relationship", back_populates="snapshot", cascade="all, delete-orphan")
+    normalized_nodes  = relationship("NormalizedNode", back_populates="snapshot", cascade="all, delete-orphan")
+    normalized_edges  = relationship("NormalizedEdge", back_populates="snapshot", cascade="all, delete-orphan")
+    
+    # Diffs (cascade deletions to avoid FK violations)
+    diffs_from = relationship("SnapshotDiff", foreign_keys="[SnapshotDiff.from_snapshot]", cascade="all, delete-orphan")
+    diffs_to   = relationship("SnapshotDiff", foreign_keys="[SnapshotDiff.to_snapshot]", cascade="all, delete-orphan")
 
 # ─────────────────────────────────────────
 # TABLE 6 — RESOURCES

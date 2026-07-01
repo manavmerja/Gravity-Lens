@@ -6,9 +6,10 @@ import { motion } from "framer-motion";
 import {
   Sun, Moon, CaretRight,
   WifiHigh, WifiSlash, SidebarSimple,
-  ArrowsClockwise, PlayCircle,
+  ArrowsClockwise, PlayCircle, House
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardStore } from "./useDashboardStore";
@@ -59,6 +60,23 @@ export function TopHeader() {
 
   return (
     <header className="flex items-center h-14 px-4 gap-3 border-b border-[var(--gl-border)] bg-[var(--gl-bg-panel)] shrink-0 z-40">
+
+      {/* Home Button */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center h-8 w-8 rounded-md text-[var(--gl-text-muted)] hover:text-[var(--gl-text-primary)] hover:bg-[var(--gl-bg-muted)] transition-colors"
+            />
+          }
+        >
+          <House size={16} />
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          Back to Home
+        </TooltipContent>
+      </Tooltip>
 
       {/* Left Panel Toggle */}
       <Tooltip>
