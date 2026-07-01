@@ -131,7 +131,7 @@ export default function ConnectAWSPage() {
           const status = data.latest_scan_status;
           setScanStatus(status);
 
-          if (status === "completed") {
+          if (status === "success" || status === "partial" || status === "completed") {
             setCurrentStep(5);
             setCompleted(true);
             clearInterval(pollInterval);
