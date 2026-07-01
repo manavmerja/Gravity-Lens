@@ -58,7 +58,7 @@ const SCAN_STEPS = [
   { id: 2, label: "Discovering Infrastructure Resources", desc: "Scanning EC2, RDS, VPCs, Lambda, and active regions." },
   { id: 3, label: "Analyzing Topology Relationships", desc: "Evaluating cross-service routes and security group associations." },
   { id: 4, label: "Calculating Monthly Cost & Drift", desc: "Running pricing engine logic and matching billing units." },
-  { id: 5, label: "Generating 2D/3D Architecture Canvas", desc: "Ready to render interactive live architecture." }
+  { id: 5, label: "Generating Architecture Canvas", desc: "Ready to render interactive live architecture." }
 ];
 
 export default function ConnectAWSPage() {
@@ -66,7 +66,7 @@ export default function ConnectAWSPage() {
   const [projectName, setProjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Connection and scanning state
   const [connectedAccount, setConnectedAccount] = useState<any>(null);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
@@ -79,7 +79,7 @@ export default function ConnectAWSPage() {
       setError("AWS Role ARN is required.");
       return;
     }
-    
+
     setLoading(true);
     setError(null);
 
@@ -171,7 +171,7 @@ export default function ConnectAWSPage() {
           <div className="absolute -top-[15%] -right-[15%] w-[500px] h-[500px] rounded-full bg-[#0025cc]/20 blur-[90px]" />
           <div className="absolute -bottom-[15%] -left-[15%] w-[500px] h-[500px] rounded-full bg-[#42000b]/40 blur-[90px]" />
         </div>
-        
+
         {/* Brand Link & Back Button */}
         <div className="flex items-center justify-between w-full z-10">
           <Link
@@ -213,7 +213,7 @@ export default function ConnectAWSPage() {
                   className="border border-white/5 bg-[#09090D] shadow-2xl overflow-hidden rounded-2xl relative w-full flex flex-col p-6 gap-6"
                 >
                   <div className="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-indigo-500/35 to-transparent" />
-                  
+
                   <div className="flex flex-col space-y-1">
                     <h3 className="text-xl font-bold text-white">Connect your AWS Account</h3>
                     <p className="text-xs text-gray-500">
@@ -252,7 +252,7 @@ export default function ConnectAWSPage() {
                         className="bg-black/40 border-white/10 text-white placeholder-gray-600 focus:border-indigo-500/50"
                       />
                     </div>
-                    
+
                     <div className="pt-2">
                       <LiquidButton
                         className="w-full bg-white text-black hover:bg-transparent hover:text-white border-transparent"
@@ -314,7 +314,7 @@ export default function ConnectAWSPage() {
                                 {step.id}
                               </div>
                             )}
-                            
+
                             {/* Connective Line */}
                             {step.id < 5 && (
                               <div
@@ -387,7 +387,7 @@ export default function ConnectAWSPage() {
 
         {/* Video component with premium backlight glow */}
         <div className="my-auto py-8 flex flex-col items-center justify-center z-10 w-full px-4">
-          
+
           {/* Header instructing the user */}
           <div className="text-center max-w-lg mb-6 z-10 flex flex-col items-center justify-center gap-1.5 select-none">
             <span className="text-[10px] font-bold tracking-[0.25em] text-indigo-400 uppercase">
