@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
   Sun, Moon, CaretRight,
   WifiHigh, WifiSlash, SidebarSimple,
-  ArrowsClockwise, ArrowCounterClockwise,
+  ArrowsClockwise, PlayCircle,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 
@@ -101,7 +101,7 @@ export function TopHeader() {
             />
           }
         >
-          <ArrowCounterClockwise size={16} />
+          <PlayCircle size={16} />
         </TooltipTrigger>
         <TooltipContent side="bottom">Replay Tour</TooltipContent>
       </Tooltip>
