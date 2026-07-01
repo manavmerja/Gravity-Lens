@@ -235,8 +235,22 @@ export default function ConnectAWSPage() {
                   </div>
 
                   {error && (
-                    <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-xl">
-                      {error}
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-xl">
+                        {error}
+                      </div>
+                      {error.toLowerCase().includes("already connected") && (
+                        <Link href="/dashboard/canvas" className="w-full">
+                          <LiquidButton
+                            className="w-full bg-indigo-500 text-white hover:bg-indigo-600 border-transparent shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+                            size="sm"
+                            style={{ "--liquid-color": "#4f46e5", "--liquid-underline": "transparent" } as React.CSSProperties}
+                            type="button"
+                          >
+                            Enter Architecture Canvas
+                          </LiquidButton>
+                        </Link>
+                      )}
                     </div>
                   )}
 
