@@ -35,6 +35,7 @@ type CanvasState = {
   activeSnapshotId: string | null;
   setActiveSnapshotId: (id: string | null) => void;
   updateNodeDimensions: (id: string, width: number, height: number) => void;
+  prefetchAndLayoutInfrastructure: (snapshotId?: string | null) => Promise<void>;
 
   // AWS Account state
   selectedAccountId: string | null;
@@ -331,6 +332,48 @@ export const useCanvasStore = create<CanvasState>()(
             edges: cleanEdges as CloudEdge[],
             isLoading: false
           });
+        }
+      },
+
+      prefetchAndLayoutInfrastructure: async (snapshotId?: string | null) => {
+        set({ isLoading: true });
+        try {
+          const url = snapshotId
+            ? `/api/aws/topology/snapshot/${snapshotId}`
+            : '/api/aws/topology/latest';
+          
+          const response = await fetch(url);
+          
+          let data;
+          if (!response.ok) {
+            console.warn("Backend failed or not connected, using fallback data.");
+            data = initialData;
+          } else {
+            data = await response.json();
+            if (!data.nodes || data.nodes.length === 0) {
+              console.warn("Backend returned empty topology, using fallback data.");
+              data = initialData;
+            }
+          }
+
+          const { validateParentRefs, purgeGhostGroups, normalizeEdges } = await import('../lib/layout/nodeUtils');
+          const safeNodes = validateParentRefs(data.nodes);
+          const cleanNodes = purgeGhostGroups(safeNodes, data.edges);
+          const cleanEdges = normalizeEdges(data.edges);
+
+          const { runGravityLayout } = await import('../lib/layout/gravityLayout');
+          const { nodes: layoutedNodes, edges: finalEdges } = await runGravityLayout(cleanNodes, cleanEdges);
+
+          useCanvasStore.temporal.getState().pause();
+          set({
+            nodes: layoutedNodes as CloudNode[],
+            edges: finalEdges as CloudEdge[],
+            isLoading: false
+          });
+          useCanvasStore.temporal.getState().resume();
+        } catch (error) {
+          console.error("Error prefetching topology:", error);
+          set({ isLoading: false });
         }
       }
     }),

@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LiquidButton } from "@/components/ui/liquid-button";
 import { Backlight } from "@/components/ui/backlight";
+import { useRouter } from "next/navigation";
+import { useCanvasStore } from "@/store/useCanvasStore";
 
 function MoveLeftArrow() {
   return (
@@ -66,6 +68,7 @@ export default function ConnectAWSPage() {
   const [projectName, setProjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // Connection and scanning state
   const [connectedAccount, setConnectedAccount] = useState<any>(null);
@@ -132,12 +135,22 @@ export default function ConnectAWSPage() {
           setScanStatus(status);
 
           if (status === "success" || status === "partial" || status === "completed") {
-            setCurrentStep(5);
-            setCompleted(true);
             clearInterval(pollInterval);
+            clearInterval(stepTimer);
+            setCurrentStep(5);
+            
+            // Prefetch and compute layout before enabling the button
+            await useCanvasStore.getState().prefetchAndLayoutInfrastructure(data.latest_snapshot_id);
+            setCompleted(true);
+            
+            // Automatic redirect after button is enabled
+            setTimeout(() => {
+              router.push('/dashboard/canvas');
+            }, 1000);
           } else if (status === "failed") {
             setError("The initial scan job failed. Please verify IAM policy permissions.");
             clearInterval(pollInterval);
+            clearInterval(stepTimer);
           }
         }
       } catch (err) {
