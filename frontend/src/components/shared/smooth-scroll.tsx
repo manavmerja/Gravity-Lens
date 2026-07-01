@@ -1,49 +1,68 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, createContext, useContext } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Context to expose Lenis instance to child components if needed
+const LenisContext = createContext<{ lenis: Lenis | null }>({ lenis: null });
+export const useLenis = () => useContext(LenisContext);
+
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
+  const lenisRef = useRef<Lenis | null>(null);
+
   useEffect(() => {
+    // Initialize Lenis on the native window scroll (html element)
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Fast start, slow end
+      duration: 1.1,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 1,
+      wheelMultiplier: 0.9,
       touchMultiplier: 1.5,
+      infinite: false,
+      // Lenis v1 targets window scroll by default when no wrapper/content given
     });
 
-    // Sync ScrollTrigger updates with Lenis scroll movements
-    lenis.on("scroll", () => {
+    lenisRef.current = lenis;
+
+    // Sync GSAP ScrollTrigger with Lenis scroll position
+    lenis.on("scroll", (e: any) => {
       ScrollTrigger.update();
-      
-      // Add scroll class to body to disable pointer events on heavy elements (e.g. iframes) during scrolling
+
+      // Mark body as scrolling (can disable pointer events on heavy elements)
       document.body.classList.add("is-scrolling");
-      clearTimeout((window as any).scrollTimeout);
-      (window as any).scrollTimeout = setTimeout(() => {
+      clearTimeout((window as any).__lenisScrollTimeout);
+      (window as any).__lenisScrollTimeout = setTimeout(() => {
         document.body.classList.remove("is-scrolling");
       }, 150);
     });
 
-    // Use GSAP ticker to drive Lenis for perfect 60fps/120fps frame synchronization
-    const updateScroll = (time: number) => {
+    // Drive Lenis via GSAP ticker for perfect frame sync
+    const rafCallback = (time: number) => {
       lenis.raf(time * 1000);
     };
-    
-    gsap.ticker.add(updateScroll);
+
+    gsap.ticker.add(rafCallback);
     gsap.ticker.lagSmoothing(0);
+
+    // Refresh ScrollTrigger after everything mounts
+    ScrollTrigger.refresh();
 
     return () => {
       lenis.destroy();
-      gsap.ticker.remove(updateScroll);
+      gsap.ticker.remove(rafCallback);
+      lenisRef.current = null;
     };
   }, []);
 
-  return <>{children}</>;
+  return (
+    <LenisContext.Provider value={{ lenis: lenisRef.current }}>
+      {children}
+    </LenisContext.Provider>
+  );
 }
