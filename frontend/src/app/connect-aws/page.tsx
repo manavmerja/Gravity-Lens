@@ -474,7 +474,7 @@ export default function ConnectAWSPage() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">4</span>
-                <span>Click Next. In permissions, search for and check **ReadOnlyAccess** to grant discovery permissions, and click Next.</span>
+                <span>Click Next. In permissions, filter policies by selecting <strong>AWS managed - job function</strong>, then search for and check <strong>ReadOnlyAccess</strong> to grant discovery permissions, and click Next.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="h-5 w-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-300 font-bold mt-0.5 shrink-0 group-hover:border-indigo-500/30 transition-colors">5</span>
