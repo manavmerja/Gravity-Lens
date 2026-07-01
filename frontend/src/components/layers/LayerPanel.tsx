@@ -5,22 +5,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLayerStore } from '../../store/layerStore';
 import { selectLayerStack, selectActiveLayerCount } from '../../store/selectors/layerSelectors';
 import { Button } from '@/components/ui/button';
-import { 
-  Stack, 
-  MagnifyingGlass, 
-  ArrowsClockwise, 
-  CaretDown, 
-  CaretRight, 
-  EyeSlash, 
-  ShieldCheck, 
-  HardDrives, 
-  Graph, 
-  Database, 
-  Lightning, 
-  Globe, 
-  GitMerge, 
-  Warning, 
-  EnvelopeSimple 
+import {
+  Stack,
+  MagnifyingGlass,
+  ArrowsClockwise,
+  CaretDown,
+  CaretRight,
+  EyeSlash,
+  ShieldCheck,
+  HardDrives,
+  Graph,
+  Database,
+  Lightning,
+  Globe,
+  GitMerge,
+  Warning,
+  EnvelopeSimple
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { LayerStackItem } from '../../types/layers';
@@ -41,16 +41,16 @@ const ICON_MAP: Record<string, React.ElementType> = {
 export default function LayerPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const layerStates = useLayerStore(state => state.layerStates);
   const layers = useLayerStore(state => state.layers);
   const toggleLayer = useLayerStore(state => state.toggleLayer);
   const resetLayers = useLayerStore(state => state.resetLayers);
-  
+
   const layerStack = selectLayerStack({ layers, layerStates });
   const activeCount = selectActiveLayerCount({ layerStates });
 
-  const filteredLayers = layerStack.filter(item => 
+  const filteredLayers = layerStack.filter(item =>
     item.definition.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.definition.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -61,6 +61,7 @@ export default function LayerPanel() {
   return (
     <div className="relative z-50">
       <Button
+        data-tour-id="layer-button"
         variant="outline"
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 bg-white/80 dark:bg-[#111111] backdrop-blur-md border border-slate-200 dark:border-[#333333] shadow-sm rounded-xl px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#222222]"
@@ -98,9 +99,9 @@ export default function LayerPanel() {
             <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
               <div className="relative">
                 <MagnifyingGlass className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" />
-                <input 
-                  type="text" 
-                  placeholder="Filter layers..." 
+                <input
+                  type="text"
+                  placeholder="Filter layers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/50 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none transition-all"
@@ -114,14 +115,14 @@ export default function LayerPanel() {
               {customLayers.length > 0 && (
                 <LayerGroup title="Custom Layers" items={customLayers} onToggle={toggleLayer} />
               )}
-              
+
               <div className="space-y-1">
                 <button className="w-full flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-default">
                   <CaretDown className="w-3.5 h-3.5" />
                   Edge Filters (1)
                 </button>
                 <div className="px-1">
-                  <LayerItem 
+                  <LayerItem
                     item={{
                       definition: {
                         id: 'iam_permissions',
@@ -137,12 +138,12 @@ export default function LayerPanel() {
                         rules: { operator: 'OR', rules: [] }
                       },
                       state: layerStates['iam_permissions'] || { enabled: false, opacity: 100, locked: false }
-                    }} 
-                    onToggle={toggleLayer} 
+                    }}
+                    onToggle={toggleLayer}
                   />
                 </div>
               </div>
-              
+
               {filteredLayers.length === 0 && (
                 <div className="p-6 text-center text-slate-500 dark:text-slate-400 text-sm flex flex-col items-center">
                   <EyeSlash className="w-8 h-8 mb-2 opacity-20" />
@@ -150,7 +151,7 @@ export default function LayerPanel() {
                 </div>
               )}
             </div>
-            
+
             {/* Footer */}
             <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs text-slate-500 text-center">
               Blend Modes: Additive (+), Subtractive (-), Exclusive (*), Override (!)
@@ -169,8 +170,8 @@ function LayerGroup({ title, items, onToggle }: { title: string, items: LayerSta
 
   return (
     <div className="space-y-1">
-      <button 
-        onClick={() => setExpanded(!expanded)} 
+      <button
+        onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
       >
         {expanded ? <CaretDown className="w-3.5 h-3.5" /> : <CaretRight className="w-3.5 h-3.5" />}
@@ -179,7 +180,7 @@ function LayerGroup({ title, items, onToggle }: { title: string, items: LayerSta
 
       <AnimatePresence>
         {expanded && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -198,7 +199,7 @@ function LayerGroup({ title, items, onToggle }: { title: string, items: LayerSta
 function LayerItem({ item, onToggle }: { item: LayerStackItem, onToggle: (id: string) => void }) {
   const { definition, state } = item;
   const Icon = ICON_MAP[definition.icon] || Stack;
-  
+
   const blendModeSymbol = {
     'additive': '+',
     'subtractive': '-',
@@ -207,18 +208,18 @@ function LayerItem({ item, onToggle }: { item: LayerStackItem, onToggle: (id: st
   }[definition.blendMode];
 
   return (
-    <div 
+    <div
       className={cn(
         "group flex items-center justify-between p-2 rounded-xl transition-all duration-200",
-        state.enabled 
-          ? "bg-slate-100 dark:bg-slate-800/50 border-transparent shadow-sm" 
+        state.enabled
+          ? "bg-slate-100 dark:bg-slate-800/50 border-transparent shadow-sm"
           : "bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/30 border-transparent"
       )}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0 pr-3" title={definition.description}>
-        <div 
+        <div
           className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-all duration-300 shrink-0"
-          style={{ 
+          style={{
             backgroundColor: state.enabled ? `${definition.color}20` : 'transparent',
             color: state.enabled ? definition.color : '#94a3b8',
             border: `1px solid ${state.enabled ? `${definition.color}40` : 'transparent'}`
@@ -241,11 +242,11 @@ function LayerItem({ item, onToggle }: { item: LayerStackItem, onToggle: (id: st
           </span>
         </div>
       </div>
-      
+
       {/* Custom Switch built with input checkbox */}
       <label className="relative inline-flex items-center cursor-pointer shrink-0">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           className="sr-only peer"
           checked={state.enabled}
           onChange={() => onToggle(definition.id)}
