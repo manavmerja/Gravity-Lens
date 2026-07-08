@@ -1,5 +1,6 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from botocore.exceptions import ClientError
 from typing import Optional
 from app.engines.normalizer import normalizer
@@ -7,14 +8,11 @@ from app.engines.normalizer import normalizer
 logger = logging.getLogger(__name__)
 
 
-class VPCScanner:
+@scanner(service="vpc", scope="regional", priority=10)
+class VPCScanner(BaseScanner):
 
-    def scan(
-        self,
-        credentials: dict,
-        region: str,
-        account_id: str
-    ) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         """
         Scan all VPCs and Subnets in a region.
         Returns nodes and edges in React Flow format.
@@ -198,4 +196,3 @@ class VPCScanner:
         }
 
 
-vpc_scanner = VPCScanner()

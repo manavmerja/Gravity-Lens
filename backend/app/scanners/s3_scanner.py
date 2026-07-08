@@ -1,18 +1,17 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from botocore.exceptions import ClientError
 from app.engines.normalizer import normalizer
 
 logger = logging.getLogger(__name__)
 
 
-class S3Scanner:
+@scanner(service="s3", scope="global", priority=100)
+class S3Scanner(BaseScanner):
 
-    def scan(
-        self,
-        credentials: dict,
-        account_id: str
-    ) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         """
         Scan all S3 buckets.
         S3 is global — no region loop needed.
@@ -95,4 +94,3 @@ class S3Scanner:
         }
 
 
-s3_scanner = S3Scanner()
