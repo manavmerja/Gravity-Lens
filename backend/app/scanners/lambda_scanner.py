@@ -1,20 +1,17 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from botocore.exceptions import ClientError
 from app.engines.normalizer import normalizer
 
 logger = logging.getLogger(__name__)
 
 
-class LambdaScanner:
+@scanner(service="lambda", scope="regional", priority=100)
+class LambdaScanner(BaseScanner):
 
-    def scan(
-        self,
-        credentials: dict,
-        region: str,
-        account_id: str,
-        subnet_map: dict = {}
-    ) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         """
         Scan all Lambda functions in a region.
         subnet_map: subnet_id → subnet_arn (for parent linking)
@@ -86,4 +83,3 @@ class LambdaScanner:
         }
 
 
-lambda_scanner = LambdaScanner()
