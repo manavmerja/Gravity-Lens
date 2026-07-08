@@ -1,13 +1,16 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from app.engines.normalizer import normalizer
 
 logger = logging.getLogger(__name__)
 
 
-class IAMScanner:
+@scanner(service="iam", scope="regional", priority=100)
+class IAMScanner(BaseScanner):
 
-    def scan(self, credentials: dict, region: str, account_id: str) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         """IAM is global — scan roles with attached policies."""
         nodes = []
         errors = []
@@ -61,4 +64,3 @@ class IAMScanner:
         return {"nodes": nodes, "edges": [], "errors": errors, "service": "iam", "region": "global"}
 
 
-iam_scanner = IAMScanner()
