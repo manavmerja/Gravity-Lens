@@ -1,18 +1,16 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from app.engines.normalizer import normalizer
 
 logger = logging.getLogger(__name__)
 
 
-class SQSScanner:
+@scanner(service="sqs", scope="regional", priority=100)
+class SQSScanner(BaseScanner):
 
-    def scan(
-        self,
-        credentials: dict,
-        region: str,
-        account_id: str
-    ) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         nodes = []
         errors = []
 
@@ -60,4 +58,3 @@ class SQSScanner:
         }
 
 
-sqs_scanner = SQSScanner()

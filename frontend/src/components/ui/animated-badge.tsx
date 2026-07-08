@@ -115,7 +115,7 @@ export function AnimatedBadge({
         content
       )}
       <style>
-        {`    
+        {`
 .multiline {
   offset-anchor: 10px 0px;
   animation: multiline-animation-path;
