@@ -7,6 +7,7 @@
 
 Before diving into code, it is critical to understand the foundational patterns and business goals driving the backend architecture:
 
+
 - **Stateless Ingestion, Stateful History:** The system continuously polls AWS to ingest raw cloud state. Instead of overwriting old data in place, it uses an append-only snapshot model. This enables deterministic "Time Travel" and configuration drift detection for the frontend.
 - **Decoupled Data Shapes (Adapter Pattern):** The chaotic, deeply nested JSON returned by AWS Boto3 APIs is explicitly decoupled from the frontend visualization. The backend acts as a massive data adapter, enforcing a strict React Flow schema (`{"id": "...", "type": "...", "data": {...}}`) so the UI doesn't have to parse AWS quirks.
 - **Inferred Topology:** AWS does not provide a single, unified graph API for relationships. The backend must infer communication edges (e.g., an EC2 instance talking to an RDS database) by statically analyzing IAM roles, Security Groups, and Event Source Mappings.
