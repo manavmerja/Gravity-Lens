@@ -1,13 +1,16 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from app.engines.normalizer import normalizer
 
 logger = logging.getLogger(__name__)
 
 
-class CloudFrontScanner:
+@scanner(service="cloudfront", scope="global", priority=100)
+class CloudFrontScanner(BaseScanner):
 
-    def scan(self, credentials: dict, account_id: str) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         """CloudFront is global — no region needed."""
         nodes = []
         errors = []
@@ -41,4 +44,3 @@ class CloudFrontScanner:
         return {"nodes": nodes, "edges": [], "errors": errors, "service": "cloudfront", "region": "global"}
 
 
-cloudfront_scanner = CloudFrontScanner()
