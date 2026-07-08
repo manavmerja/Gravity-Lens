@@ -1,13 +1,16 @@
 import boto3
 import logging
+from app.scanners.base import BaseScanner, scanner
 from app.engines.normalizer import normalizer
 
 logger = logging.getLogger(__name__)
 
 
-class ECSScanner:
+@scanner(service="ecs", scope="regional", priority=100)
+class ECSScanner(BaseScanner):
 
-    def scan(self, credentials: dict, region: str, account_id: str, subnet_map: dict = {}) -> dict:
+    def scan(self, credentials: dict, region: str = None, aws_account_id: str = None, subnet_map: dict = None, **kwargs) -> dict:
+        account_id = aws_account_id
         nodes = []
         errors = []
 
@@ -76,4 +79,3 @@ class ECSScanner:
         return {"nodes": nodes, "edges": [], "errors": errors, "service": "ecs", "region": region}
 
 
-ecs_scanner = ECSScanner()
