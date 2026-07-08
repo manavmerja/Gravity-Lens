@@ -115,12 +115,8 @@ def normalize_account(
 
         logger.info(f"Found snapshot version {latest_snapshot.version_number}")
 
-        # Step 2: Fetch all supported resources
-        SUPPORTED_SERVICES = {
-            "vpc", "subnet", "ec2", "lambda", "rds", "sqs", "s3",
-            "apigateway", "eventbridge", "dynamodb", "ecs", "sns", "cloudfront",
-            "eks", "secretsmanager", "stepfunctions"
-        }
+        from app.engines.normalizers.base import normalizer_registry
+        SUPPORTED_SERVICES = set(normalizer_registry.keys())
 
         resources = db.query(Resource).filter(
             Resource.snapshot_id == latest_snapshot.id,
@@ -433,7 +429,7 @@ def normalize_account(
         kept_ids: set = set()
         for n in nodes:
             svc = n.get("data", {}).get("service", "")
-            if svc not in ("vpc", "subnet") and n["id"] in connected_arns:
+            if svc not in ("vpc", "subnet"):
                 kept_ids.add(n["id"])
 
         for n in nodes:
