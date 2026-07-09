@@ -16,6 +16,9 @@ Usage:
 """
 
 import logging
+import pkgutil
+import importlib
+import inspect
 from app.engines.costs.base import BaseCostCalculator
 
 from app.engines.costs.lambda_cost      import LambdaCostCalculator
@@ -57,26 +60,18 @@ class CostEngine:
         self._register_builtins()
 
     def _register_builtins(self):
-        builtins = [
-            LambdaCostCalculator(),
-            SQSCostCalculator(),
-            EC2CostCalculator(),
-            S3CostCalculator(),
-            VPCCostCalculator(),
-            APIGatewayCostCalculator(),
-            SubnetCostAllocator(),
-            EventBridgeCostCalculator(),
-            RDSCostCalculator(),
-            SNSCostCalculator(),
-            DynamoDBCostCalculator(),
-            CloudFrontCostCalculator(),
-            ECSCostCalculator(),
-            EKSCostCalculator(),
-            SecretsManagerCostCalculator(),
-            StepFunctionsCostCalculator(),
-        ]
-        for calc in builtins:
-            self.register(calc)
+        """Dynamically discover and register all collectors/calculators."""
+        import app.engines.costs
+        for _, module_name, _ in pkgutil.iter_modules(app.engines.costs.__path__):
+            if module_name in ["base", "cache", "pricing_service"]:
+                continue
+            try:
+                module = importlib.import_module(f"app.engines.costs.{module_name}")
+                for name, obj in inspect.getmembers(module, inspect.isclass):
+                    if issubclass(obj, BaseCostCalculator) and obj is not BaseCostCalculator:
+                        self.register(obj())
+            except Exception as e:
+                logger.error(f"Failed to load module {module_name}: {e}")
 
     # ─────────────────────────────────────────────────────────────────────────
     # PUBLIC API

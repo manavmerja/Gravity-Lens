@@ -10,24 +10,13 @@ Usage:
 """
 
 import logging
+import pkgutil
+import importlib
+import inspect
 from typing import Optional
 from app.engines.metrics.base  import BaseMetricsCollector
 from app.engines.metrics.cache import metrics_cache
 
-# ── Import all built-in collectors ───────────────────────────────────────────
-from app.engines.metrics.lambda_metrics     import LambdaMetricsCollector
-from app.engines.metrics.sqs_metrics        import SQSMetricsCollector
-from app.engines.metrics.ec2_metrics        import EC2MetricsCollector
-from app.engines.metrics.s3_metrics         import S3MetricsCollector
-from app.engines.metrics.vpc_metrics        import VPCMetricsCollector
-from app.engines.metrics.apigateway_metrics   import APIGatewayMetricsCollector
-from app.engines.metrics.subnet_metrics       import SubnetMetricsCollector
-from app.engines.metrics.eventbridge_metrics  import EventBridgeMetricsCollector
-from app.engines.metrics.rds_metrics         import RDSMetricsCollector
-from app.engines.metrics.sns_metrics         import SNSMetricsCollector
-from app.engines.metrics.dynamodb_metrics    import DynamoDBMetricsCollector
-from app.engines.metrics.cloudfront_metrics  import CloudFrontMetricsCollector
-from app.engines.metrics.ecs_metrics         import ECSMetricsCollector
 
 logger = logging.getLogger(__name__)
 
@@ -53,24 +42,18 @@ class MetricsEngine:
         self._register_builtins()
 
     def _register_builtins(self):
-        """Register all out-of-the-box service collectors."""
-        builtins = [
-            LambdaMetricsCollector(),
-            SQSMetricsCollector(),
-            EC2MetricsCollector(),
-            S3MetricsCollector(),
-            VPCMetricsCollector(),
-            APIGatewayMetricsCollector(),
-            SubnetMetricsCollector(),
-            EventBridgeMetricsCollector(),
-            RDSMetricsCollector(),
-            SNSMetricsCollector(),
-            DynamoDBMetricsCollector(),
-            CloudFrontMetricsCollector(),
-            ECSMetricsCollector(),
-        ]
-        for collector in builtins:
-            self.register(collector)
+        """Dynamically discover and register all collectors/calculators."""
+        import app.engines.metrics
+        for _, module_name, _ in pkgutil.iter_modules(app.engines.metrics.__path__):
+            if module_name in ["base", "cache", "pricing_service"]:
+                continue
+            try:
+                module = importlib.import_module(f"app.engines.metrics.{module_name}")
+                for name, obj in inspect.getmembers(module, inspect.isclass):
+                    if issubclass(obj, BaseMetricsCollector) and obj is not BaseMetricsCollector:
+                        self.register(obj())
+            except Exception as e:
+                logger.error(f"Failed to load module {module_name}: {e}")
 
     # ─────────────────────────────────────────────────────────────────────────
     # PUBLIC API
